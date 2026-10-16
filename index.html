@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Carrera de Mente</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <!-- ============ PANTALLA 1: CONFIGURACIÓN ============ -->
+  <section id="screen-setup" class="screen screen-setup" hidden>
+    <div class="setup-card">
+      <h1 class="logo">🧠 Carrera de Mente</h1>
+      <p class="subtitle">Registrá los equipos (mínimo 2). Elegí nombre, ficha y color.</p>
+
+      <div id="team-list" class="team-list"></div>
+
+      <div class="setup-actions">
+        <button id="btn-add-team" class="btn btn-ghost" type="button">➕ Agregar equipo</button>
+        <button id="btn-start" class="btn btn-primary btn-big" type="button">🎲 ¡Empezar partida!</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ PANTALLA 2: TABLERO ============ -->
+  <section id="screen-game" class="screen screen-game" hidden>
+    <header class="topbar">
+      <h1 class="logo small">🧠 Carrera de Mente</h1>
+      <div class="topbar-actions">
+        <button id="btn-undo" class="btn btn-ghost" type="button" title="Deshacer última acción">↩️ Deshacer</button>
+        <button id="btn-new" class="btn btn-ghost" type="button">🔄 Nueva partida</button>
+      </div>
+    </header>
+
+    <main class="game-layout">
+      <div class="board-wrap">
+        <div id="board" class="board">
+          <!-- Las casillas se generan por JS. Las fichas viven en esta capa encima -->
+          <div id="tokens" class="tokens-layer"></div>
+        </div>
+      </div>
+
+      <aside class="panel">
+        <div id="turn-card" class="turn-card"></div>
+
+        <div class="panel-box">
+          <p class="panel-label">Valor del dado físico</p>
+          <div id="dice-buttons" class="dice-buttons"></div>
+          <button id="btn-move" class="btn btn-primary btn-big btn-block" type="button" disabled>¡Mover!</button>
+          <div class="row-actions">
+            <button id="btn-ring" class="btn btn-gold" type="button">💍 +1 Anillo</button>
+            <button id="btn-skip" class="btn btn-ghost" type="button">⏭️ Pasar turno</button>
+          </div>
+          <p class="hint">Atajos: teclas <kbd>1</kbd>–<kbd>6</kbd> y <kbd>Enter</kbd></p>
+        </div>
+
+        <div class="panel-box">
+          <p class="panel-label">Equipos</p>
+          <ol id="score-list" class="score-list"></ol>
+        </div>
+      </aside>
+    </main>
+  </section>
+
+  <!-- ============ MODAL: CONTINUAR PARTIDA ============ -->
+  <div id="modal-resume" class="modal" hidden>
+    <div class="modal-card">
+      <div class="modal-emoji">💾</div>
+      <h2>Hay una partida guardada</h2>
+      <ul id="resume-summary" class="resume-summary"></ul>
+      <div class="modal-actions">
+        <button id="btn-resume" class="btn btn-primary btn-big" type="button">▶️ Continuar partida</button>
+        <button id="btn-resume-new" class="btn btn-ghost" type="button">🆕 Nueva partida</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ MODAL: DESAFÍO ============ -->
+  <div id="modal-challenge" class="modal" hidden>
+    <div class="modal-card">
+      <div class="modal-emoji">❓</div>
+      <h2>¡Desafío!</h2>
+      <p id="challenge-text" class="modal-text"></p>
+      <div class="modal-actions">
+        <button id="btn-challenge-ok" class="btn btn-primary btn-big" type="button">✅ Correcto (+1 💍)</button>
+        <button id="btn-challenge-fail" class="btn btn-danger btn-big" type="button">❌ Incorrecto</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ MODAL: VICTORIA ============ -->
+  <div id="modal-victory" class="modal modal-victory" hidden>
+    <div id="confetti" class="confetti"></div>
+    <div class="modal-card victory-card">
+      <div id="victory-avatar" class="victory-avatar"></div>
+      <h2 id="victory-title" class="victory-title"></h2>
+      <p id="victory-text" class="modal-text"></p>
+      <div class="modal-actions">
+        <button id="btn-victory-continue" class="btn btn-primary btn-big" type="button">Seguir jugando</button>
+        <button id="btn-victory-new" class="btn btn-ghost" type="button">🆕 Nueva partida</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" hidden></div>
+
+  <script src="js/config.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
