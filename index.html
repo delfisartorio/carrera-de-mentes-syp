@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Carrera de Mente</title>
+  <title>Carrera de Mentes</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
@@ -11,13 +11,42 @@
 </head>
 <body>
 
+  <!-- Aviso que se ve solo si el JavaScript no arranca (JS lo oculta al iniciar) -->
+  <div id="boot-msg" class="boot-msg">
+    <div class="modal-card">
+      <div class="modal-emoji">🧠</div>
+      <h2>Carrera de Mentes</h2>
+      <p class="modal-text">Si ves este mensaje, el juego no pudo arrancar.</p>
+      <p>Abrí <strong>index.html</strong> con <strong>Chrome o Edge</strong> (doble clic en el archivo),
+        desde la carpeta completa del juego: tienen que estar al lado las carpetas
+        <code>css</code>, <code>js</code> y <code>assets</code>.</p>
+      <p><small>Las vistas previas de archivos (por ejemplo dentro de otras apps) no ejecutan el juego.</small></p>
+    </div>
+  </div>
+
+  <!-- input de archivo compartido (setup y juego) para cargar el CSV -->
+  <input type="file" id="bank-file" accept=".csv,.txt,text/csv" hidden>
+
   <!-- ============ PANTALLA 1: CONFIGURACIÓN ============ -->
   <section id="screen-setup" class="screen screen-setup" hidden>
     <div class="setup-card">
-      <h1 class="logo">🧠 Carrera de Mente</h1>
+      <h1 class="logo">🧠 Carrera de Mentes</h1>
       <p class="subtitle">Registrá los equipos (mínimo 2). Elegí nombre, ficha y color.</p>
 
       <div id="team-list" class="team-list"></div>
+
+      <h2 class="section-title">📚 Banco de preguntas</h2>
+      <div class="bank-box">
+        <p id="bank-status" class="bank-status"></p>
+        <div id="bank-themes" class="theme-chips"></div>
+        <p id="bank-error" class="bank-error" hidden></p>
+        <div class="bank-actions">
+          <button id="btn-bank-load" class="btn btn-gold" type="button">📂 Cargar CSV</button>
+          <button id="btn-bank-sample" class="btn btn-ghost" type="button">✨ Usar preguntas de ejemplo</button>
+          <button id="btn-bank-template" class="btn btn-ghost" type="button">⬇️ Descargar plantilla</button>
+          <button id="btn-bank-clear" class="btn btn-ghost" type="button">🗑️ Quitar banco</button>
+        </div>
+      </div>
 
       <div class="setup-actions">
         <button id="btn-add-team" class="btn btn-ghost" type="button">➕ Agregar equipo</button>
@@ -29,8 +58,9 @@
   <!-- ============ PANTALLA 2: TABLERO ============ -->
   <section id="screen-game" class="screen screen-game" hidden>
     <header class="topbar">
-      <h1 class="logo small">🧠 Carrera de Mente</h1>
+      <h1 class="logo small">🧠 Carrera de Mentes</h1>
       <div class="topbar-actions">
+        <button id="btn-game-bank" class="btn btn-ghost" type="button" title="Cargar otro CSV de preguntas">📚 Preguntas</button>
         <button id="btn-undo" class="btn btn-ghost" type="button" title="Deshacer última acción">↩️ Deshacer</button>
         <button id="btn-new" class="btn btn-ghost" type="button">🔄 Nueva partida</button>
       </div>
@@ -55,6 +85,7 @@
             <button id="btn-ring" class="btn btn-gold" type="button">💍 +1 Anillo</button>
             <button id="btn-skip" class="btn btn-ghost" type="button">⏭️ Pasar turno</button>
           </div>
+          <button id="btn-ask" class="btn btn-ghost btn-block" type="button" style="margin-top:8px" title="Vuelve a sacar una pregunta de la casilla donde está el equipo">❓ Pregunta de esta casilla</button>
           <p class="hint">Atajos: teclas <kbd>1</kbd>–<kbd>6</kbd> y <kbd>Enter</kbd></p>
         </div>
 
@@ -79,15 +110,33 @@
     </div>
   </div>
 
-  <!-- ============ MODAL: DESAFÍO ============ -->
-  <div id="modal-challenge" class="modal" hidden>
-    <div class="modal-card">
-      <div class="modal-emoji">❓</div>
-      <h2>¡Desafío!</h2>
-      <p id="challenge-text" class="modal-text"></p>
+  <!-- ============ MODAL: PREGUNTA ============ -->
+  <div id="modal-question" class="modal" hidden>
+    <div id="question-card" class="modal-card question-card">
+      <span id="q-theme" class="theme-chip"></span>
+      <p id="q-team" class="q-team"></p>
+      <h2 id="q-text" class="q-text"></h2>
+      <ol id="q-options" class="q-options"></ol>
+      <div id="q-answer" class="q-answer" hidden></div>
       <div class="modal-actions">
-        <button id="btn-challenge-ok" class="btn btn-primary btn-big" type="button">✅ Correcto (+1 💍)</button>
-        <button id="btn-challenge-fail" class="btn btn-danger btn-big" type="button">❌ Incorrecto</button>
+        <button id="btn-q-reveal" class="btn btn-ghost" type="button">👁️ Mostrar respuesta</button>
+      </div>
+      <div class="modal-actions">
+        <button id="btn-q-ok" class="btn btn-primary btn-big" type="button">✅ Correcto</button>
+        <button id="btn-q-fail" class="btn btn-danger btn-big" type="button">❌ Incorrecto</button>
+      </div>
+      <p id="q-counter" class="q-counter"></p>
+    </div>
+  </div>
+
+  <!-- ============ MODAL: ELEGIR TEMÁTICA DEL ANILLO ============ -->
+  <div id="modal-theme" class="modal" hidden>
+    <div class="modal-card">
+      <h2 id="theme-title">¿Anillo de qué temática?</h2>
+      <p id="theme-for" class="modal-text"></p>
+      <div id="theme-options" class="theme-options"></div>
+      <div class="modal-actions">
+        <button id="btn-theme-cancel" class="btn btn-ghost" type="button">Cancelar</button>
       </div>
     </div>
   </div>
@@ -99,6 +148,7 @@
       <div id="victory-avatar" class="victory-avatar"></div>
       <h2 id="victory-title" class="victory-title"></h2>
       <p id="victory-text" class="modal-text"></p>
+      <div id="victory-rings" class="theme-chips victory-rings"></div>
       <div class="modal-actions">
         <button id="btn-victory-continue" class="btn btn-primary btn-big" type="button">Seguir jugando</button>
         <button id="btn-victory-new" class="btn btn-ghost" type="button">🆕 Nueva partida</button>
@@ -109,6 +159,7 @@
   <div id="toast" class="toast" hidden></div>
 
   <script src="js/config.js"></script>
+  <script src="js/preguntas-ejemplo.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>
