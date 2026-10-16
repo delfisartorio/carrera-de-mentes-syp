@@ -14,7 +14,7 @@ const CONFIG = {
 
   // Zona libre del fondo donde se dibuja la pista, en % del alto/ancho
   // de la imagen. Si cambiás de fondo, ajustá estos 4 números.
-  BOARD_AREA: { top: 25, right: 24.5, bottom: 12.5, left: 27.5 },
+  BOARD_AREA: { top: 20, right: 20, bottom: 14, left: 20 },
 
   // La casilla 0 (Salida) es comodín: si caen justo ahí, eligen la temática.
   START_IS_WILD: true,

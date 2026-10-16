@@ -14,7 +14,7 @@
   <!-- Aviso que se ve solo si el JavaScript no arranca (JS lo oculta al iniciar) -->
   <div id="boot-msg" class="boot-msg">
     <div class="modal-card">
-      <div class="modal-emoji">🧠</div>
+      <div class="modal-emoji"></div>
       <h2>Carrera de Mentes</h2>
       <p class="modal-text">Si ves este mensaje, el juego no pudo arrancar.</p>
       <p>Abrí <strong>index.html</strong> con <strong>Chrome o Edge</strong> (doble clic en el archivo),
@@ -30,27 +30,27 @@
   <!-- ============ PANTALLA 1: CONFIGURACIÓN ============ -->
   <section id="screen-setup" class="screen screen-setup" hidden>
     <div class="setup-card">
-      <h1 class="logo">🧠 Carrera de Mentes</h1>
+      <h1 class="logo"> Carrera de Mentes</h1>
       <p class="subtitle">Registrá los equipos (mínimo 2). Elegí nombre, ficha y color.</p>
 
       <div id="team-list" class="team-list"></div>
 
-      <h2 class="section-title">📚 Banco de preguntas</h2>
+      <h2 class="section-title"> Banco de preguntas</h2>
       <div class="bank-box">
         <p id="bank-status" class="bank-status"></p>
         <div id="bank-themes" class="theme-chips"></div>
         <p id="bank-error" class="bank-error" hidden></p>
         <div class="bank-actions">
-          <button id="btn-bank-load" class="btn btn-gold" type="button">📂 Cargar CSV</button>
-          <button id="btn-bank-sample" class="btn btn-ghost" type="button">✨ Usar preguntas de ejemplo</button>
-          <button id="btn-bank-template" class="btn btn-ghost" type="button">⬇️ Descargar plantilla</button>
-          <button id="btn-bank-clear" class="btn btn-ghost" type="button">🗑️ Quitar banco</button>
+          <button id="btn-bank-load" class="btn btn-gold" type="button"> Cargar CSV</button>
+          <button id="btn-bank-sample" class="btn btn-ghost" type="button"> Usar preguntas de ejemplo</button>
+          <button id="btn-bank-template" class="btn btn-ghost" type="button"> Descargar plantilla</button>
+          <button id="btn-bank-clear" class="btn btn-ghost" type="button"> Quitar banco</button>
         </div>
       </div>
 
       <div class="setup-actions">
-        <button id="btn-add-team" class="btn btn-ghost" type="button">➕ Agregar equipo</button>
-        <button id="btn-start" class="btn btn-primary btn-big" type="button">🎲 ¡Empezar partida!</button>
+        <button id="btn-add-team" class="btn btn-ghost" type="button"> Agregar equipo</button>
+        <button id="btn-start" class="btn btn-primary btn-big" type="button"> ¡Empezar partida!</button>
       </div>
     </div>
   </section>
@@ -58,11 +58,11 @@
   <!-- ============ PANTALLA 2: TABLERO ============ -->
   <section id="screen-game" class="screen screen-game" hidden>
     <header class="topbar">
-      <h1 class="logo small">🧠 Carrera de Mentes</h1>
+      <h1 class="logo small"> Carrera de Mentes</h1>
       <div class="topbar-actions">
-        <button id="btn-game-bank" class="btn btn-ghost" type="button" title="Cargar otro CSV de preguntas">📚 Preguntas</button>
-        <button id="btn-undo" class="btn btn-ghost" type="button" title="Deshacer última acción">↩️ Deshacer</button>
-        <button id="btn-new" class="btn btn-ghost" type="button">🔄 Nueva partida</button>
+        <button id="btn-game-bank" class="btn btn-ghost" type="button" title="Cargar otro CSV de preguntas"> Preguntas</button>
+        <button id="btn-undo" class="btn btn-ghost" type="button" title="Deshacer última acción"> Deshacer</button>
+        <button id="btn-new" class="btn btn-ghost" type="button"> Nueva partida</button>
       </div>
     </header>
 
@@ -82,10 +82,10 @@
           <div id="dice-buttons" class="dice-buttons"></div>
           <button id="btn-move" class="btn btn-primary btn-big btn-block" type="button" disabled>¡Mover!</button>
           <div class="row-actions">
-            <button id="btn-ring" class="btn btn-gold" type="button">💍 +1 Anillo</button>
-            <button id="btn-skip" class="btn btn-ghost" type="button">⏭️ Pasar turno</button>
+            <button id="btn-ring" class="btn btn-gold" type="button">+1 Anillo</button>
+              <button id="btn-skip" class="btn btn-ghost" type="button">Pasar turno</button>
           </div>
-          <button id="btn-ask" class="btn btn-ghost btn-block" type="button" style="margin-top:8px" title="Vuelve a sacar una pregunta de la casilla donde está el equipo">❓ Pregunta de esta casilla</button>
+          <button id="btn-ask" class="btn btn-ghost btn-block" type="button" style="margin-top:8px" title="Vuelve a sacar una pregunta de la casilla donde está el equipo">Pregunta de esta casilla</button>
           <p class="hint">Atajos: teclas <kbd>1</kbd>–<kbd>6</kbd> y <kbd>Enter</kbd></p>
         </div>
 
@@ -100,12 +100,12 @@
   <!-- ============ MODAL: CONTINUAR PARTIDA ============ -->
   <div id="modal-resume" class="modal" hidden>
     <div class="modal-card">
-      <div class="modal-emoji">💾</div>
+      <div class="modal-emoji"></div>
       <h2>Hay una partida guardada</h2>
       <ul id="resume-summary" class="resume-summary"></ul>
       <div class="modal-actions">
-        <button id="btn-resume" class="btn btn-primary btn-big" type="button">▶️ Continuar partida</button>
-        <button id="btn-resume-new" class="btn btn-ghost" type="button">🆕 Nueva partida</button>
+        <button id="btn-resume" class="btn btn-primary btn-big" type="button">Continuar partida</button>
+        <button id="btn-resume-new" class="btn btn-ghost" type="button">Nueva partida</button>
       </div>
     </div>
   </div>
@@ -119,11 +119,11 @@
       <ol id="q-options" class="q-options"></ol>
       <div id="q-answer" class="q-answer" hidden></div>
       <div class="modal-actions">
-        <button id="btn-q-reveal" class="btn btn-ghost" type="button">👁️ Mostrar respuesta</button>
+        <button id="btn-q-reveal" class="btn btn-ghost" type="button">Mostrar respuesta</button>
       </div>
       <div class="modal-actions">
-        <button id="btn-q-ok" class="btn btn-primary btn-big" type="button">✅ Correcto</button>
-        <button id="btn-q-fail" class="btn btn-danger btn-big" type="button">❌ Incorrecto</button>
+        <button id="btn-q-ok" class="btn btn-primary btn-big" type="button">Correcto</button>
+        <button id="btn-q-fail" class="btn btn-danger btn-big" type="button">Incorrecto</button>
       </div>
       <p id="q-counter" class="q-counter"></p>
     </div>
@@ -151,7 +151,7 @@
       <div id="victory-rings" class="theme-chips victory-rings"></div>
       <div class="modal-actions">
         <button id="btn-victory-continue" class="btn btn-primary btn-big" type="button">Seguir jugando</button>
-        <button id="btn-victory-new" class="btn btn-ghost" type="button">🆕 Nueva partida</button>
+        <button id="btn-victory-new" class="btn btn-ghost" type="button">Nueva partida</button>
       </div>
     </div>
   </div>
