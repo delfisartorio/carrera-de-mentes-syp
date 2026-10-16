@@ -7,7 +7,7 @@ const CONFIG = {
   // ---- Tablero ----
   TOTAL_CELLS: 40,        // Total de casillas, incluye SALIDA (0) y META (la última)
   COLUMNS: 8,             // Casillas por fila (el recorrido es en serpentina)
-  BOARD_BACKGROUND: null, // Ej: 'assets/tablero/fondo.jpg'  (null = sin imagen)
+  BOARD_BACKGROUND: assets/tablero/fondo.jpg,
 
   // ---- Animación ----
   STEP_MS: 380,           // Duración de cada saltito entre casillas (ms)
