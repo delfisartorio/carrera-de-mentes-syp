@@ -76,23 +76,25 @@
   const sadTone = () => [330, 262].forEach((f, i) => setTimeout(() => blip(f, 0.2, 'sawtooth'), i * 180));
 
   /* ---------------- Avatares ---------------- */
-  // Si la imagen no carga, se reemplaza por el emoji.
+  // Si la imagen no carga (o no hay), se muestra la inicial del personaje.
   window.avatarFallback = img => {
     const span = img.parentNode;
     span.classList.remove('is-img');
-    span.textContent = img.dataset.emoji;
+    span.classList.add('av-initial');
+    span.textContent = img.dataset.initial;
   };
   function avatarHTML(id) {
     const a = avatarById(id);
+    const initial = esc(a.name.charAt(0).toUpperCase());
     if (a.img) {
-      return `<span class="av is-img"><img src="${esc(a.img)}" alt="${esc(a.name)}" data-emoji="${a.emoji}" onerror="avatarFallback(this)"></span>`;
+      return `<span class="av is-img"><img src="${esc(a.img)}" alt="${esc(a.name)}" data-initial="${initial}" onerror="avatarFallback(this)"></span>`;
     }
-    return `<span class="av">${a.emoji}</span>`;
+    return `<span class="av av-initial">${initial}</span>`;
   }
 
   /* =========================================================
      TEMÁTICAS
-     Cada temática tiene { name, color, icon }. Las que están en
+     Cada temática tiene { name, color }. Las que están en
      CONFIG.THEMES usan esos valores; las demás reciben colores
      libres de la paleta (sin repetir dentro de la partida).
      ========================================================= */
@@ -114,15 +116,14 @@
     unknown.forEach((n, i) => themeMap.set(norm(n), {
       name: String(n).trim(),
       color: (free.length ? free : C.RING_COLORS)[i % (free.length || C.RING_COLORS.length)],
-      icon: C.AUTO_ICONS[i % C.AUTO_ICONS.length],
     }));
   }
   function themeInfo(name) {
-    return themeMap.get(norm(name)) || configTheme(name) || { name: String(name || '').trim() || '?', color: '#9a8c73', icon: '💍' };
+    return themeMap.get(norm(name)) || configTheme(name) || { name: String(name || '').trim() || '?', color: '#9a8c73' };
   }
   function themeChip(name, extra = '', cls = '') {
     const t = themeInfo(name);
-    return `<span class="theme-chip ${cls}" style="--theme:${t.color}">${t.icon} ${esc(t.name)}${extra}</span>`;
+    return `<span class="theme-chip ${cls}" style="--theme:${t.color}">${esc(t.name)}${extra}</span>`;
   }
   const hasRing = (team, theme) => team.rings.some(r => norm(r) === norm(theme));
   const isWinner = team => state.winners.includes(team.id);
@@ -208,7 +209,7 @@
   const boardThemesFromBank = () => bankThemes().slice(0, C.MAX_THEMES);
 
   function saveBank() {
-    try { localStorage.setItem(C.BANK_STORAGE_KEY, JSON.stringify(bank)); } catch (e) { toast('⚠️ El banco es muy grande para guardarse', 2500); }
+    try { localStorage.setItem(C.BANK_STORAGE_KEY, JSON.stringify(bank)); } catch (e) { toast('El banco es muy grande para guardarse', 2500); }
   }
   function loadBank() {
     try {
@@ -223,12 +224,12 @@
       state.used = [];
       save();
       const missing = state.themes.filter(t => !bank.questions.some(q => norm(q.theme) === norm(t)));
-      if (missing.length) toast(`⚠️ El nuevo banco no tiene preguntas de: ${missing.join(', ')}`, 3500);
-      else toast(`📚 ${bank.questions.length} preguntas cargadas`);
+      if (missing.length) toast(`El nuevo banco no tiene preguntas de: ${missing.join(', ')}`, 3500);
+      else toast(`${bank.questions.length} preguntas cargadas`);
     } else {
       setThemeList(boardThemesFromBank());
       renderBank();
-      toast(`📚 ${bank.questions.length} preguntas cargadas`);
+      toast(`${bank.questions.length} preguntas cargadas`);
     }
   }
 
@@ -247,9 +248,9 @@
       setBank(buildBank(parseCSV(await readFileText(file)), file.name));
       $('#bank-error').hidden = true;
     } catch (err) {
-      $('#bank-error').textContent = '⚠️ ' + err.message;
+      $('#bank-error').textContent = err.message;
       $('#bank-error').hidden = false;
-      toast('⚠️ ' + err.message, 3000);
+      toast(err.message, 3000);
     }
   }
 
@@ -261,16 +262,16 @@
     const err = $('#bank-error');
     status.classList.toggle('empty', !n);
     status.textContent = n
-      ? `✅ ${n} preguntas cargadas${bank.name ? ` (${bank.name})` : ''} · ${used.length} temáticas = ${used.length} anillos para ganar`
+      ? `${n} preguntas cargadas${bank.name ? ` (${bank.name})` : ''} · ${used.length} temáticas = ${used.length} anillos para ganar`
       : 'Cargá un banco de preguntas para poder jugar (o usá el de ejemplo).';
     $('#bank-themes').innerHTML = used.map(t =>
       themeChip(t, ` <small>${bank.questions.filter(q => norm(q.theme) === norm(t)).length}</small>`)).join('');
 
     if (all.length > C.MAX_THEMES) {
-      err.textContent = `⚠️ El CSV tiene ${all.length} temáticas; se usan las primeras ${C.MAX_THEMES}. Quedan afuera: ${all.slice(C.MAX_THEMES).join(', ')}.`;
+      err.textContent = `El CSV tiene ${all.length} temáticas; se usan las primeras ${C.MAX_THEMES}. Quedan afuera: ${all.slice(C.MAX_THEMES).join(', ')}.`;
       err.hidden = false;
     } else if (n && all.length < C.MIN_THEMES) {
-      err.textContent = `⚠️ Hacen falta al menos ${C.MIN_THEMES} temáticas.`;
+      err.textContent = `Hacen falta al menos ${C.MIN_THEMES} temáticas.`;
       err.hidden = false;
     } else err.hidden = true;
     $('#btn-bank-clear').disabled = !n;
@@ -296,7 +297,7 @@
     if (!fresh.length) {
       state.used = state.used.filter(id => !pool.some(q => q.id === id));
       fresh = pool;
-      toast(`🔁 Se usaron todas las preguntas de ${theme}: vuelven a salir`, 2500);
+      toast(`Se usaron todas las preguntas de ${theme}: vuelven a salir`, 2500);
     }
     // evita repetir justo la última pregunta (si hay otra opción)
     if (fresh.length > 1) fresh = fresh.filter(q => q.id !== state.lastQ);
@@ -351,7 +352,7 @@
           <div class="avatar-preview">${avatarHTML(t.avatar)}</div>
           <input class="team-name" type="text" maxlength="22" placeholder="Equipo ${i + 1}" value="${esc(t.name)}">
           <label class="color-pick" title="Color del equipo"><input type="color" class="team-color" value="${t.color}"></label>
-          <button type="button" class="btn-icon team-remove" title="Quitar equipo" ${draft.length <= C.MIN_TEAMS ? 'disabled' : ''}>✖</button>
+          <button type="button" class="btn-icon team-remove" title="Quitar equipo" ${draft.length <= C.MIN_TEAMS ? 'disabled' : ''}>&times;</button>
         </div>
         <div class="avatar-picker">
           ${C.AVATARS.map(a => `
@@ -421,7 +422,7 @@
   function startNewGame() {
     const themes = boardThemesFromBank();
     if (themes.length < C.MIN_THEMES) {
-      toast(themes.length ? `⚠️ Hacen falta al menos ${C.MIN_THEMES} temáticas` : '⚠️ Primero cargá un banco de preguntas', 3000);
+      toast(themes.length ? `Hacen falta al menos ${C.MIN_THEMES} temáticas` : 'Primero cargá un banco de preguntas', 3000);
       $('#btn-bank-load').scrollIntoView({ behavior: 'smooth', block: 'center' });
       return;
     }
@@ -494,12 +495,12 @@
       el.style.gridColumn = col;
       if (i === 0) {
         el.classList.add('cell-start');
-        el.innerHTML = `<span class="cell-icon">🚩</span><span class="cell-label">Salida${C.START_IS_WILD ? '<br>Comodín' : ''}</span>`;
+        el.innerHTML = `<span class="cell-label">Salida</span>${C.START_IS_WILD ? '<span class="cell-sub">Comodín</span>' : ''}`;
       } else {
         const t = themeInfo(state.cellThemes[i]);
         el.classList.add('cell-theme');
         el.style.setProperty('--theme', t.color);
-        el.innerHTML = `<span class="cell-icon">${t.icon}</span><span class="cell-label">${esc(t.name)}</span>`;
+        el.innerHTML = `<span class="cell-ring"></span><span class="cell-label">${esc(t.name)}</span>`;
       }
       cells.push(el);
       frag.appendChild(el);
@@ -514,7 +515,7 @@
       <div class="center-title">¡Juntá los ${state.themes.length} anillos!</div>
       <div class="center-themes">${state.themes.map(t => {
         const info = themeInfo(t);
-        return `<div class="center-theme" style="--theme:${info.color}"><span class="center-ring"></span>${info.icon} ${esc(info.name)}</div>`;
+        return `<div class="center-theme" style="--theme:${info.color}"><span class="center-ring"></span>${esc(info.name)}</div>`;
       }).join('')}</div>`;
     frag.appendChild(center);
 
@@ -544,7 +545,6 @@
           <div class="token-shadow"></div>
           <div class="rings"></div>
           <div class="token-avatar">${avatarHTML(t.avatar)}</div>
-          <div class="ring-badge"></div>
         </div>`;
       layer.appendChild(el);
       tokens.set(t.id, el);
@@ -571,7 +571,6 @@
     }).join('');
     el.style.setProperty('--vis', n);
     el.style.setProperty('--has', n > 0 ? 1 : 0);
-    el.querySelector('.ring-badge').textContent = n > 0 ? `${n}/${state.themes.length}` : '';
   }
 
   // Ubica cada ficha sobre su casilla (con o sin transición).
@@ -655,7 +654,7 @@
     let theme = state.cellThemes[team.pos];
     if (!theme) { // Salida
       if (!C.START_IS_WILD) return;
-      toast('🚩 ¡Comodín! Elijan la temática');
+      toast('¡Comodín! Elijan la temática');
       theme = await chooseTheme(team, 'Comodín: ¿de qué temática quieren la pregunta?');
       if (!theme) return;
     }
@@ -715,7 +714,7 @@
     state.teams.forEach(t => renderRings(t, false));
     save();
     renderPanel(true);
-    toast('↩️ Acción deshecha', 1200);
+    toast('Acción deshecha', 1200);
   }
 
   /* =========================================================
@@ -728,11 +727,11 @@
       if (q) state.used.push(q.id); // respondida bien: no vuelve a salir
       const name = themeInfo(theme).name;
       if (addRing(team, theme)) {
-        toast(`💍 ¡Anillo de ${name} para ${team.name}!`);
+        toast(`¡Anillo de ${name} para ${team.name}!`);
         await sleep(1000);
         checkWin(team);
       } else {
-        toast(`✅ ¡Bien! (ya tenían el anillo de ${name})`, 2200);
+        toast(`¡Bien! (ya tenían el anillo de ${name})`, 2200);
         await sleep(600);
       }
     } else {
@@ -741,51 +740,14 @@
     save();
   }
 
-  // Muestra la pregunta. Devuelve true/false según decida el moderador.
+  // Muestra solo la pregunta y los botones Correcto / Incorrecto.
+  // (El borde superior toma el color de la temática.)
+  // Devuelve true/false según decida el moderador.
   function askQuestion(team, q, themeName) {
     return new Promise(resolve => {
       const theme = themeInfo(themeName);
-      const card = $('#question-card');
-      card.style.setProperty('--theme', theme.color);
-      card.style.setProperty('--team', team.color);
-      $('#q-theme').style.setProperty('--theme', theme.color);
-      $('#q-theme').textContent = `${theme.icon} ${theme.name}`;
-      const already = hasRing(team, theme.name);
-      $('#q-team').innerHTML = `Responde: <strong>${esc(team.name)}</strong>${already ? ' <em>(ya tienen este anillo)</em>' : ''}`;
+      $('#question-card').style.setProperty('--theme', theme.color);
       $('#q-text').textContent = q ? q.q : `No hay preguntas de ${theme.name} en el banco: el moderador hace una.`;
-
-      const pool = bank.questions.filter(x => norm(x.theme) === norm(theme.name));
-      const left = pool.filter(x => !state.used.includes(x.id)).length;
-      $('#q-counter').textContent = pool.length ? `Quedan ${left} de ${pool.length} preguntas de ${theme.name} sin acertar` : '';
-
-      // Opciones (si las hay)
-      const letters = 'ABCDEFGH';
-      const opts = q ? q.options : [];
-      const isCorrect = (o, i) => norm(o) === norm(q.a) || norm(q.a) === norm(letters[i]);
-      $('#q-options').innerHTML = opts.map((o, i) =>
-        `<li class="q-option" data-i="${i}"><b>${letters[i] || i + 1}</b><span>${esc(o)}</span></li>`).join('');
-      $('#q-options').hidden = !opts.length;
-      $('#q-options').onclick = e => {
-        const li = e.target.closest('.q-option'); if (!li) return;
-        $('#q-options').querySelectorAll('.q-option').forEach(x => x.classList.remove('picked'));
-        li.classList.add('picked');
-      };
-
-      // Respuesta
-      const ans = $('#q-answer');
-      ans.hidden = true;
-      ans.innerHTML = q && q.a ? `<small>Respuesta</small>${esc(q.a)}` : '';
-      $('#btn-q-reveal').hidden = !(q && q.a);
-      $('#btn-q-reveal').onclick = () => {
-        ans.hidden = false;
-        $('#btn-q-reveal').hidden = true;
-        $('#q-options').querySelectorAll('.q-option').forEach((li, i) => {
-          if (isCorrect(opts[i], i)) li.classList.add('correct');
-          else if (li.classList.contains('picked')) li.classList.add('wrong');
-        });
-      };
-
-      $('#btn-q-ok').textContent = already ? '✅ Correcto' : `✅ Correcto (+ anillo ${theme.name})`;
       openModal('#modal-question');
       const done = ok => {
         closeModal('#modal-question');
@@ -806,7 +768,7 @@
       $('#theme-options').innerHTML = state.themes.map(name => {
         const t = themeInfo(name);
         const owned = hasRing(team, name);
-        return `<button type="button" class="btn ${owned ? 'owned' : ''}" data-theme="${esc(t.name)}" style="--theme:${t.color}" ${owned && onlyMissing ? 'disabled' : ''}>${t.icon} ${esc(t.name)}${owned ? ' ✔' : ''}</button>`;
+        return `<button type="button" class="btn ${owned ? 'owned' : ''}" data-theme="${esc(t.name)}" style="--theme:${t.color}" ${owned && onlyMissing ? 'disabled' : ''}>${esc(t.name)}${owned ? ' (ya lo tienen)' : ''}</button>`;
       }).join('');
       openModal('#modal-theme');
       const done = val => {
@@ -845,7 +807,7 @@
     const finished = allFinished();
     if (finished) {
       card.style.setProperty('--team', '#e5b842');
-      card.innerHTML = `<div class="turn-avatar"><span class="av">🏆</span></div>
+      card.innerHTML = `<div class="turn-avatar"><span class="av av-initial">FIN</span></div>
         <div><div class="turn-label">Fin</div><div class="turn-name">¡Partida terminada!</div></div>`;
     } else {
       card.style.setProperty('--team', cur.color);
@@ -854,7 +816,7 @@
         <div>
           <div class="turn-label">Turno de</div>
           <div class="turn-name">${esc(cur.name)}</div>
-          <div class="turn-meta">💍 ${cur.rings.length} de ${state.themes.length} anillos</div>
+          <div class="turn-meta">Anillos: ${cur.rings.length} de ${state.themes.length}</div>
         </div>`;
     }
     if (turnChanged) { card.classList.remove('changed'); void card.offsetWidth; card.classList.add('changed'); }
@@ -877,8 +839,8 @@
       <li class="score-item ${cur && t.id === cur.id && !finished ? 'current' : ''} ${isWinner(t) ? 'finished' : ''}" style="--team:${t.color}" data-id="${t.id}">
         <div class="score-avatar">${avatarHTML(t.avatar)}</div>
         <div class="score-info">
-          <div class="score-name">${isWinner(t) ? '🏆 ' : ''}${esc(t.name)}</div>
-          <div class="score-pos">💍 ${t.rings.length}/${state.themes.length}</div>
+          <div class="score-name">${esc(t.name)}${isWinner(t) ? ' <span class="winner-tag">Ganador</span>' : ''}</div>
+          <div class="score-pos">Anillos: ${t.rings.length} de ${state.themes.length}</div>
         </div>
         <button type="button" class="btn-icon" data-ring="-1" title="Quitar último anillo" ${busy || !t.rings.length ? 'disabled' : ''}>−</button>
         <button type="button" class="btn-icon" data-ring="1" title="Dar anillo" ${busy || t.rings.length >= state.themes.length ? 'disabled' : ''}>+</button>
@@ -962,7 +924,7 @@
     $('#victory-avatar').innerHTML = avatarHTML(team.avatar);
     $('#modal-victory').style.setProperty('--team', team.color);
     $('#victory-title').textContent = place === 1 ? `¡Ganó ${team.name}!` : `¡${team.name} completó los anillos!`;
-    $('#victory-text').textContent = `Puesto #${place} · juntó los ${state.themes.length} anillos 💍`;
+    $('#victory-text').textContent = `Puesto #${place} · juntó los ${state.themes.length} anillos`;
     $('#victory-rings').innerHTML = ringProgress(team);
     $('#btn-victory-continue').hidden = allFinished();
     openModal('#modal-victory');
@@ -995,7 +957,7 @@
     saved = normalize(saved);
     $('#resume-summary').innerHTML = saved.teams.map(t => `
       <li style="--team:${t.color}">${avatarHTML(t.avatar)}
-        <strong>${esc(t.name)}</strong> — 💍 ${t.rings.length} de ${saved.themes.length} anillos</li>`).join('');
+        <strong>${esc(t.name)}</strong> — ${t.rings.length} de ${saved.themes.length} anillos</li>`).join('');
     openModal('#modal-resume');
     $('#btn-resume').onclick = () => {
       closeModal('#modal-resume');

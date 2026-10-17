@@ -25,21 +25,20 @@ const CONFIG = {
   MIN_THEMES: 2,
   MAX_THEMES: 6,
 
-  // Color e ícono para las temáticas conocidas (mayúsculas y tildes no
+  // Color de las temáticas conocidas (mayúsculas y tildes no
   // importan: "geografia" = "Geografía"). Las que no estén acá reciben
-  // un color de RING_COLORS y un ícono de AUTO_ICONS.
+  // un color de RING_COLORS.
   THEMES: {
-    'Historia':        { color: '#b83a3a', icon: '🏛️' },
-    'Ciencia':         { color: '#4a90a4', icon: '🔬' },
-    'Geografía':       { color: '#3a8a58', icon: '🌎' },
-    'Arte':            { color: '#a569bd', icon: '🎨' },
-    'Deportes':        { color: '#e07b39', icon: '⚽' },
-    'Matemática':      { color: '#2e6f8e', icon: '➗' },
-    'Lengua':          { color: '#c9a227', icon: '📚' },
-    'Entretenimiento': { color: '#d36b9b', icon: '🎬' },
+    'Historia':        { color: '#b83a3a' },
+    'Ciencia':         { color: '#4a90a4' },
+    'Geografía':       { color: '#3a8a58' },
+    'Arte':            { color: '#a569bd' },
+    'Deportes':        { color: '#e07b39' },
+    'Matemática':      { color: '#2e6f8e' },
+    'Lengua':          { color: '#c9a227' },
+    'Entretenimiento': { color: '#d36b9b' },
   },
   RING_COLORS: ['#b83a3a', '#4a90a4', '#3a8a58', '#a569bd', '#e07b39', '#c9a227', '#d36b9b', '#5d8aa8'],
-  AUTO_ICONS: ['⭐', '💡', '🎯', '🧩', '🔮', '🎵', '🌟', '🍀'],
   RING_IMAGE: null, // Ej: 'assets/anillos/anillo.png' (reemplaza el anillo dibujado por CSS)
 
   // ---- Animación ----
@@ -53,19 +52,19 @@ const CONFIG = {
 
   // ---- Personajes / fichas ----
   // img: ruta a tu imagen (PNG/SVG con fondo transparente). Si es null
-  //      o la imagen no existe, se usa el emoji como respaldo.
+  //      o la imagen no existe, se muestra la inicial del nombre.
   AVATARS: [
-    { id: 'clasico',     name: 'Clásico',      emoji: '🐣', img: 'assets/avatars/01_classic.png' },
-    { id: 'piloto',      name: 'Piloto',       emoji: '🐣', img: 'assets/avatars/03_pilot.png' },
-    { id: 'estudioso',   name: 'Estudioso',    emoji: '🐣', img: 'assets/avatars/05_scholar.png' },
-    { id: 'canchero',    name: 'Canchero',     emoji: '🐣', img: 'assets/avatars/06_cool_dude.png' },
-    { id: 'picaro',      name: 'Pícaro',       emoji: '🐣', img: 'assets/avatars/08_saucy.png' },
-    { id: 'bailarina',   name: 'Bailarina',    emoji: '🐣', img: 'assets/avatars/09_ballerina.png' },
-    { id: 'cientifico',  name: 'Científico',   emoji: '🐣', img: 'assets/avatars/11_scientist.png' },
-    { id: 'cientifico2', name: 'Científico 2', emoji: '🐣', img: 'assets/avatars/12_scientist_2.png' },
-    { id: 'panadero',    name: 'Panadero',     emoji: '🐣', img: 'assets/avatars/13_baker.png' },
-    { id: 'dama',        name: 'Dama vintage', emoji: '🐣', img: 'assets/avatars/14_vintage_belle.png' },
-    { id: 'jardinero',   name: 'Jardinero',    emoji: '🐣', img: 'assets/avatars/16_gardener.png' },
+    { id: 'clasico',     name: 'Clásico',      img: 'assets/avatars/01_classic.png' },
+    { id: 'piloto',      name: 'Piloto',       img: 'assets/avatars/03_pilot.png' },
+    { id: 'estudioso',   name: 'Estudioso',    img: 'assets/avatars/05_scholar.png' },
+    { id: 'canchero',    name: 'Canchero',     img: 'assets/avatars/06_cool_dude.png' },
+    { id: 'picaro',      name: 'Pícaro',       img: 'assets/avatars/08_saucy.png' },
+    { id: 'bailarina',   name: 'Bailarina',    img: 'assets/avatars/09_ballerina.png' },
+    { id: 'cientifico',  name: 'Científico',   img: 'assets/avatars/11_scientist.png' },
+    { id: 'cientifico2', name: 'Científico 2', img: 'assets/avatars/12_scientist_2.png' },
+    { id: 'panadero',    name: 'Panadero',     img: 'assets/avatars/13_baker.png' },
+    { id: 'dama',        name: 'Dama vintage', img: 'assets/avatars/14_vintage_belle.png' },
+    { id: 'jardinero',   name: 'Jardinero',    img: 'assets/avatars/16_gardener.png' },
   ],
 
   // Colores sugeridos que se asignan a cada equipo nuevo (paleta retro)

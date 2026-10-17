@@ -8,9 +8,9 @@ Doble clic en `index.html` (Chrome o Edge). No necesita internet ni servidor
 - La pista es **circular**: las fichas dan vueltas, no hay casilla final.
 - **Cada casilla es de una temática** (las temáticas salen del CSV).
 - Al caer en una casilla aparece una **pregunta al azar de esa temática**:
-  - ✅ **Correcta** → el equipo gana el **anillo de esa temática** y esa pregunta
+  - **Correcta** → el equipo gana el **anillo de esa temática** y esa pregunta
     **no vuelve a salir** en la partida.
-  - ❌ **Incorrecta** → no gana nada y la pregunta **puede volver a salir**.
+  - **Incorrecta** → no gana nada y la pregunta **puede volver a salir**.
   - Si ya tenían ese anillo, igual responden (sirve de repaso) pero no suman otro.
 - **Gana el primer equipo que junta un anillo de cada temática.** Con "Seguir jugando"
   los demás siguen compitiendo por el 2.º puesto, etc.
@@ -22,7 +22,7 @@ Doble clic en `index.html` (Chrome o Edge). No necesita internet ni servidor
 ```
 index.html                ← estructura de pantallas (no hace falta tocarlo)
 css/styles.css            ← estética retro: colores, tamaños, animaciones
-js/config.js              ← ⭐ TODO lo configurable
+js/config.js              ← TODO lo configurable
 js/app.js                 ← lógica (no hace falta tocarlo)
 js/preguntas-ejemplo.js   ← copia del CSV de ejemplo (botón "Usar preguntas de ejemplo")
 preguntas/ejemplo.csv     ← banco de ejemplo: 5 temáticas × 6 preguntas
@@ -34,7 +34,7 @@ assets/
 
 ## Banco de preguntas (CSV)
 
-En la pantalla inicial, sección **📚 Banco de preguntas** → **Cargar CSV**.
+En la pantalla inicial, sección **Banco de preguntas** → **Cargar CSV**.
 **Sin banco no se puede empezar** (las temáticas del tablero salen de ahí).
 Queda guardado en el navegador: no hay que cargarlo cada clase.
 
@@ -51,9 +51,9 @@ Queda guardado en el navegador: no hay que cargarlo cada clase.
 - Conviene que cada temática tenga **varias preguntas** (al menos 6–10), porque las acertadas
   ya no se repiten.
 - Separador `;` o `,` (se detecta solo). Acentos OK.
-- `opciones` es **opcional**: se muestran como A/B/C/D, separadas por `|`.
-- `respuesta` la ve el moderador al tocar **👁️ Mostrar respuesta**
-  (si coincide con una opción, esa opción se pinta de verde).
+- Las columnas `respuesta` y `opciones` son **opcionales** y no se muestran en pantalla:
+  la pantalla de pregunta muestra solo la pregunta y los botones **Correcto** / **Incorrecto**.
+  (Sirven como ayuda para el moderador si mira el CSV.)
 - **Descargar plantilla** baja un CSV listo para completar.
 
 ## Configuración (`js/config.js`)
@@ -63,7 +63,7 @@ Queda guardado en el navegador: no hay que cargarlo cada clase.
 | `COLUMNS`, `ROWS` | Tamaño de la vuelta. Casillas = 2×COLUMNS + 2×(ROWS−2). **7×5 = 20** (por defecto), 6×4 = 16, 8×5 = 22. |
 | `MAX_THEMES` / `MIN_THEMES` | Cuántas temáticas del CSV se usan como máximo / mínimo. |
 | `START_IS_WILD` | `true`: la Salida es comodín (eligen temática). |
-| `THEMES` | Color e ícono de temáticas conocidas. Las que no estén reciben color de `RING_COLORS` e ícono de `AUTO_ICONS`. Mayúsculas y tildes no importan. |
+| `THEMES` | Color de temáticas conocidas. Las que no estén reciben color de `RING_COLORS`. Mayúsculas y tildes no importan. |
 | `BOARD_AREA` | Zona del fondo donde va la pista (% de la imagen). Ajustar si cambiás el fondo. |
 | `STEP_MS` | Velocidad del saltito por casilla. |
 
@@ -78,7 +78,7 @@ nueva y se mantiene si se recarga.
 - El personaje centrado y **con los pies tocando el borde de abajo**
   (así queda "parado" encima de los anillos).
 - En `config.js` → `AVATARS`: `img: 'assets/avatars/pollito.png'`.
-  Si la imagen falta, aparece el emoji.
+  Si la imagen falta, aparece la inicial del nombre.
 
 ### 2. Fondo del tablero → `assets/tablero/fondo.jpg`
 - Ya está puesto. La pista se dibuja en la zona de arena (`BOARD_AREA`) y en el centro
@@ -95,10 +95,10 @@ En `:root`: `--card` (pergamino), `--ink` (tinta), `--accent`, fondo `--bg-1`/`-
 ## Cómo se juega (moderador)
 1. Cargar el banco de preguntas, registrar equipos → **Empezar partida**.
 2. Tirar el dado físico → tocar el número (o tecla `1`–`6`) → **Mover** (o `Enter`).
-3. Leer la pregunta → **Mostrar respuesta** → **Correcto** / **Incorrecto**.
+3. Leer la pregunta → **Correcto** / **Incorrecto**.
 4. Botones extra:
-   - **❓ Pregunta de esta casilla**: vuelve a sacar una pregunta donde está el equipo.
-   - **💍 +1 Anillo** / **+** en la lista: dar un anillo a mano (eligiendo temática).
+   - **Pregunta de esta casilla**: vuelve a sacar una pregunta donde está el equipo.
+   - **+1 Anillo** / **+** en la lista: dar un anillo a mano (eligiendo temática).
    - **−** en la lista: quitar el último anillo.
    - **Deshacer**, **Pasar turno**.
 5. Todo se guarda solo. Si se cierra la pestaña, al volver ofrece **Continuar partida guardada**.
