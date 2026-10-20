@@ -11,7 +11,8 @@ Doble clic en `index.html` (Chrome o Edge). No necesita internet ni servidor
   - **Correcta** → el equipo gana el **anillo de esa temática** y esa pregunta
     **no vuelve a salir** en la partida.
   - **Incorrecta** → no gana nada y la pregunta **puede volver a salir**.
-  - Si ya tenían ese anillo, igual responden (sirve de repaso) pero no suman otro.
+  - Si ya tenían ese anillo y responden bien, no suman otro pero **vuelven a tirar el dado**
+    (en el panel aparece "Vuelve a tirar"). Si responden mal, pasa el turno.
 - **Gana el primer equipo que junta un anillo de cada temática.** Con "Seguir jugando"
   los demás siguen compitiendo por el 2.º puesto, etc.
 - La **Salida** es comodín: si caen justo ahí, eligen de qué temática es la pregunta.
@@ -63,6 +64,7 @@ Queda guardado en el navegador: no hay que cargarlo cada clase.
 | `COLUMNS`, `ROWS` | Tamaño de la vuelta. Casillas = 2×COLUMNS + 2×(ROWS−2). **7×5 = 20** (por defecto), 6×4 = 16, 8×5 = 22. |
 | `MAX_THEMES` / `MIN_THEMES` | Cuántas temáticas del CSV se usan como máximo / mínimo. |
 | `START_IS_WILD` | `true`: la Salida es comodín (eligen temática). |
+| `EXTRA_TURN_ON_REPEAT` | `true`: acertar una temática que ya tienen da otro tiro. `false`: pasa el turno igual. |
 | `THEMES` | Color de temáticas conocidas. Las que no estén reciben color de `RING_COLORS`. Mayúsculas y tildes no importan. |
 | `BOARD_AREA` | Zona del fondo donde va la pista (% de la imagen). Ajustar si cambiás el fondo. |
 | `STEP_MS` | Velocidad del saltito por casilla. |

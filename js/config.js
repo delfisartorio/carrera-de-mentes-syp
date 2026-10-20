@@ -19,6 +19,10 @@ const CONFIG = {
   // La casilla 0 (Salida) es comodín: si caen justo ahí, eligen la temática.
   START_IS_WILD: true,
 
+  // Si caen en una temática cuyo anillo ya tienen y responden bien,
+  // no ganan otro anillo pero vuelven a tirar el dado.
+  EXTRA_TURN_ON_REPEAT: true,
+
   // ---- Temáticas ----
   // Salen del CSV (columna "tematica"). El tablero usa las primeras
   // MAX_THEMES que aparecen. Para ganar hay que juntar un anillo de cada una.

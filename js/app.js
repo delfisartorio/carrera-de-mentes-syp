@@ -658,7 +658,7 @@
       theme = await chooseTheme(team, 'Comodín: ¿de qué temática quieren la pregunta?');
       if (!theme) return;
     }
-    await runQuestion(team, theme);
+    return runQuestion(team, theme);
   }
 
   async function playTurn() {
@@ -668,14 +668,21 @@
 
     pushHistory();
     busy = true;
+    state.bonus = false;
     const steps = dice;
     dice = null;
     renderPanel();
 
     await walk(team, steps);
-    await resolveCell(team);
+    const result = await resolveCell(team);
 
-    nextTurn();
+    // Acertó una categoría que ya tenía: vuelve a tirar (no pasa el turno)
+    if (result === 'extra' && C.EXTRA_TURN_ON_REPEAT && !isWinner(team)) {
+      state.bonus = true;
+      toast(`¡Correcto! ${team.name} vuelve a tirar`, 2200);
+    } else {
+      nextTurn();
+    }
     busy = false;
     save();
     renderPanel(true);
@@ -720,24 +727,30 @@
   /* =========================================================
      PREGUNTAS
      ========================================================= */
+  // Devuelve 'ring' (ganó anillo), 'extra' (acertó una categoría que ya
+  // tenía) o 'fail' (respuesta incorrecta).
   async function runQuestion(team, theme) {
     const q = pickQuestion(theme);
     const ok = await askQuestion(team, q, theme);
+    let result = 'fail';
     if (ok) {
       if (q) state.used.push(q.id); // respondida bien: no vuelve a salir
       const name = themeInfo(theme).name;
       if (addRing(team, theme)) {
+        result = 'ring';
         toast(`¡Anillo de ${name} para ${team.name}!`);
         await sleep(1000);
         checkWin(team);
       } else {
-        toast(`¡Bien! (ya tenían el anillo de ${name})`, 2200);
-        await sleep(600);
+        result = 'extra';
+        [660, 880, 1100].forEach((f, i) => setTimeout(() => blip(f, 0.1, 'sine'), i * 90));
+        await sleep(400);
       }
     } else {
       sadTone();
     }
     save();
+    return result;
   }
 
   // Muestra solo la pregunta y los botones Correcto / Incorrecto.
@@ -814,7 +827,7 @@
       card.innerHTML = `
         <div class="turn-avatar">${avatarHTML(cur.avatar)}</div>
         <div>
-          <div class="turn-label">Turno de</div>
+          <div class="turn-label">${state.bonus ? 'Vuelve a tirar' : 'Turno de'}</div>
           <div class="turn-name">${esc(cur.name)}</div>
           <div class="turn-meta">Anillos: ${cur.rings.length} de ${state.themes.length}</div>
         </div>`;
@@ -874,6 +887,7 @@
     $('#btn-skip').addEventListener('click', () => {
       if (busy) return;
       pushHistory();
+      state.bonus = false;
       nextTurn(); dice = null; save(); renderPanel(true);
     });
     $('#btn-undo').addEventListener('click', undo);
