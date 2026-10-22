@@ -51,12 +51,16 @@ Queda guardado en el navegador: no hay que cargarlo cada clase.
 
 **Formato** (Excel o Google Sheets → "Guardar como CSV"):
 
-| tematica | dificultad | pregunta | respuesta | opciones |
-|---|---|---|---|---|
-| Historia | facil | ¿En qué año llegó Colón a América? | 1492 | 1492\|1810\|1516\|1776 |
-| Ciencia | dificil | ¿Cuántos huesos tiene el cuerpo humano? | 206 | |
-| Ciencia | facil | El Sol es una estrella. | Verdadero | Verdadero\|Falso |
+| tematica | pregunta | respuesta | opciones | opcion_correcta | dificultad |
+|---|---|---|---|---|---|
+| Historia | ¿En qué año llegó Colón a América? | 1492 | 1492\|1810\|1516\|1776 | A | facil |
+| Ciencia | ¿Cuántos huesos tiene el cuerpo humano? | 206 | | | dificil |
+| Ciencia | El Sol es una estrella. | Verdadero | Verdadero\|Falso | A | facil |
 
+- `opcion_correcta`: cuál de las opciones es la buena. Puede ser la letra (`B`),
+  el número (`2` = la segunda) o el texto de la opción. El comodín
+  **Eliminar opciones nunca saca la correcta**; si no se puede saber cuál es,
+  el comodín queda desactivado para esa pregunta.
 - `dificultad`: `facil` o `dificil`. Si está vacía, la pregunta sirve para las dos.
 - **Verdadero/Falso**: poné `Verdadero|Falso` como opciones.
 
@@ -65,10 +69,9 @@ Queda guardado en el navegador: no hay que cargarlo cada clase.
   Ej.: un CSV con 5 temáticas → 5 anillos para ganar.
 - Conviene que cada temática tenga **varias preguntas** (al menos 6–10), porque las acertadas
   ya no se repiten.
-- Separador `;` o `,` (se detecta solo). Acentos OK.
-- Las columnas `respuesta` y `opciones` son **opcionales**. Las opciones se muestran
-  como A/B/C/D; la respuesta no se muestra (la usa el comodín "Eliminar opciones",
-  así que tiene que coincidir con una de las opciones). El moderador decide con
+- Separador `;`, `,` o tabulación (se detecta solo). Acentos OK.
+- Las columnas `respuesta`, `opciones` y `opcion_correcta` son **opcionales**. Las opciones
+  se muestran como A/B/C/D; la respuesta no se muestra. El moderador decide con
   **Correcto** / **Incorrecto**.
 - **Descargar plantilla** baja un CSV listo para completar.
 

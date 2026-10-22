@@ -1,46 +1,46 @@
-tematica;dificultad;pregunta;respuesta;opciones
-Historia;facil;¿En qué año llegó Colón a América?;1492;1492|1810|1516|1776
-Historia;facil;¿Quién fue el primer presidente de los Estados Unidos?;George Washington;Abraham Lincoln|George Washington|Thomas Jefferson|John Adams
-Historia;facil;¿Qué muralla famosa se construyó en China?;La Gran Muralla;
-Historia;facil;¿En qué país están las pirámides de Giza?;Egipto;México|Egipto|Perú|Grecia
-Historia;facil;La Revolución de Mayo en Argentina fue en 1810.;Verdadero;Verdadero|Falso
-Historia;dificil;¿Qué civilización construyó Machu Picchu?;Los incas;Los mayas|Los aztecas|Los incas|Los olmecas
-Historia;dificil;¿En qué año cayó el Muro de Berlín?;1989;1961|1989|1991|1975
-Historia;dificil;¿Quién fue el primer emperador romano?;Augusto;Julio César|Augusto|Nerón|Calígula
-Historia;dificil;¿En qué año comenzó la Primera Guerra Mundial?;1914;1905|1914|1918|1939
-Ciencia;facil;¿Cuál es el planeta más grande del sistema solar?;Júpiter;Saturno|Júpiter|Neptuno|Tierra
-Ciencia;facil;¿Cuál es la fórmula química del agua?;H2O;H2O|CO2|O2|NaCl
-Ciencia;facil;¿Qué órgano bombea la sangre por el cuerpo?;El corazón;
-Ciencia;facil;¿A qué temperatura hierve el agua al nivel del mar?;100 °C;50 °C|80 °C|100 °C|120 °C
-Ciencia;facil;El Sol es una estrella.;Verdadero;Verdadero|Falso
-Ciencia;dificil;¿Qué gas necesitan las plantas para hacer la fotosíntesis?;Dióxido de carbono;Oxígeno|Nitrógeno|Dióxido de carbono|Helio
-Ciencia;dificil;¿Cuántos huesos tiene el cuerpo humano adulto?;206;186|206|226|256
-Ciencia;dificil;¿Qué elemento químico tiene el símbolo Fe?;Hierro;Flúor|Hierro|Fósforo|Francio
-Ciencia;dificil;El sonido viaja más rápido en el aire que en el agua.;Falso;Verdadero|Falso
-Geografía;facil;¿En qué continente está Egipto?;África;Asia|África|Europa|Oceanía
-Geografía;facil;¿Cuál es el océano más grande?;Pacífico;Atlántico|Índico|Pacífico|Ártico
-Geografía;facil;¿Qué país tiene forma de bota?;Italia;España|Italia|Grecia|Portugal
-Geografía;facil;¿Cuál es la montaña más alta de América?;Aconcagua;
-Geografía;facil;Buenos Aires es la capital de Argentina.;Verdadero;Verdadero|Falso
-Geografía;dificil;¿Cuál es el río más largo de Sudamérica?;Amazonas;Paraná|Orinoco|Amazonas|Río de la Plata
-Geografía;dificil;¿Cuál es la capital de Australia?;Canberra;Sídney|Melbourne|Canberra|Perth
-Geografía;dificil;¿Cuál es el país más grande del mundo?;Rusia;Canadá|China|Rusia|Estados Unidos
-Geografía;dificil;¿Cuál es el desierto más seco del mundo?;Atacama;Sahara|Atacama|Gobi|Kalahari
-Arte;facil;¿Quién pintó la Mona Lisa?;Leonardo da Vinci;Miguel Ángel|Leonardo da Vinci|Rafael|Picasso
-Arte;facil;¿Qué instrumento tiene teclas blancas y negras?;Piano;Violín|Piano|Flauta|Arpa
-Arte;facil;¿Qué colores se mezclan para obtener el verde?;Azul y amarillo;
-Arte;facil;¿Cuántas cuerdas tiene una guitarra clásica?;6;4|5|6|8
-Arte;facil;El violín es un instrumento de viento.;Falso;Verdadero|Falso
-Arte;dificil;¿Quién pintó "La noche estrellada"?;Van Gogh;Monet|Van Gogh|Dalí|Frida Kahlo
-Arte;dificil;¿Cuáles son los colores primarios en pintura tradicional?;Rojo, amarillo y azul;
-Arte;dificil;¿Quién esculpió el David?;Miguel Ángel;Donatello|Miguel Ángel|Bernini|Rodin
-Arte;dificil;¿De qué país era Frida Kahlo?;México;España|México|Colombia|Cuba
-Deportes;facil;¿Cuántos jugadores tiene un equipo de fútbol en cancha?;11;9|10|11|12
-Deportes;facil;¿Cuántos puntos vale un triple en básquet?;3;
-Deportes;facil;¿Cuántos anillos tiene el símbolo olímpico?;5;4|5|6|7
-Deportes;facil;En el tenis se usa una raqueta.;Verdadero;Verdadero|Falso
-Deportes;facil;¿En qué deporte se hace un "home run"?;Béisbol;Críquet|Béisbol|Golf|Rugby
-Deportes;dificil;¿Cada cuántos años se hacen los Juegos Olímpicos de verano?;4;2|3|4|5
-Deportes;dificil;¿En qué deporte se usa una red y un volante (pluma)?;Bádminton;Tenis|Bádminton|Vóley|Squash
-Deportes;dificil;¿En qué país se jugó el primer Mundial de fútbol?;Uruguay;Brasil|Italia|Uruguay|Argentina
-Deportes;dificil;¿Cuántos minutos dura un partido de básquet FIBA?;40;40|48|60|90
+tematica;pregunta;respuesta;opciones;opcion_correcta;dificultad
+Historia;¿En qué año llegó Colón a América?;1492;1492|1810|1516|1776;A;facil
+Historia;¿Quién fue el primer presidente de los Estados Unidos?;George Washington;Abraham Lincoln|George Washington|Thomas Jefferson|John Adams;B;facil
+Historia;¿Qué muralla famosa se construyó en China?;La Gran Muralla;;;facil
+Historia;¿En qué país están las pirámides de Giza?;Egipto;México|Egipto|Perú|Grecia;B;facil
+Historia;La Revolución de Mayo en Argentina fue en 1810.;Verdadero;Verdadero|Falso;A;facil
+Historia;¿Qué civilización construyó Machu Picchu?;Los incas;Los mayas|Los aztecas|Los incas|Los olmecas;C;dificil
+Historia;¿En qué año cayó el Muro de Berlín?;1989;1961|1989|1991|1975;B;dificil
+Historia;¿Quién fue el primer emperador romano?;Augusto;Julio César|Augusto|Nerón|Calígula;B;dificil
+Historia;¿En qué año comenzó la Primera Guerra Mundial?;1914;1905|1914|1918|1939;B;dificil
+Ciencia;¿Cuál es el planeta más grande del sistema solar?;Júpiter;Saturno|Júpiter|Neptuno|Tierra;B;facil
+Ciencia;¿Cuál es la fórmula química del agua?;H2O;H2O|CO2|O2|NaCl;A;facil
+Ciencia;¿Qué órgano bombea la sangre por el cuerpo?;El corazón;;;facil
+Ciencia;¿A qué temperatura hierve el agua al nivel del mar?;100 °C;50 °C|80 °C|100 °C|120 °C;C;facil
+Ciencia;El Sol es una estrella.;Verdadero;Verdadero|Falso;A;facil
+Ciencia;¿Qué gas necesitan las plantas para hacer la fotosíntesis?;Dióxido de carbono;Oxígeno|Nitrógeno|Dióxido de carbono|Helio;C;dificil
+Ciencia;¿Cuántos huesos tiene el cuerpo humano adulto?;206;186|206|226|256;B;dificil
+Ciencia;¿Qué elemento químico tiene el símbolo Fe?;Hierro;Flúor|Hierro|Fósforo|Francio;B;dificil
+Ciencia;El sonido viaja más rápido en el aire que en el agua.;Falso;Verdadero|Falso;B;dificil
+Geografía;¿En qué continente está Egipto?;África;Asia|África|Europa|Oceanía;B;facil
+Geografía;¿Cuál es el océano más grande?;Pacífico;Atlántico|Índico|Pacífico|Ártico;C;facil
+Geografía;¿Qué país tiene forma de bota?;Italia;España|Italia|Grecia|Portugal;B;facil
+Geografía;¿Cuál es la montaña más alta de América?;Aconcagua;;;facil
+Geografía;Buenos Aires es la capital de Argentina.;Verdadero;Verdadero|Falso;A;facil
+Geografía;¿Cuál es el río más largo de Sudamérica?;Amazonas;Paraná|Orinoco|Amazonas|Río de la Plata;C;dificil
+Geografía;¿Cuál es la capital de Australia?;Canberra;Sídney|Melbourne|Canberra|Perth;C;dificil
+Geografía;¿Cuál es el país más grande del mundo?;Rusia;Canadá|China|Rusia|Estados Unidos;C;dificil
+Geografía;¿Cuál es el desierto más seco del mundo?;Atacama;Sahara|Atacama|Gobi|Kalahari;B;dificil
+Arte;¿Quién pintó la Mona Lisa?;Leonardo da Vinci;Miguel Ángel|Leonardo da Vinci|Rafael|Picasso;B;facil
+Arte;¿Qué instrumento tiene teclas blancas y negras?;Piano;Violín|Piano|Flauta|Arpa;B;facil
+Arte;¿Qué colores se mezclan para obtener el verde?;Azul y amarillo;;;facil
+Arte;¿Cuántas cuerdas tiene una guitarra clásica?;6;4|5|6|8;C;facil
+Arte;El violín es un instrumento de viento.;Falso;Verdadero|Falso;B;facil
+Arte;¿Quién pintó "La noche estrellada"?;Van Gogh;Monet|Van Gogh|Dalí|Frida Kahlo;B;dificil
+Arte;¿Cuáles son los colores primarios en pintura tradicional?;Rojo, amarillo y azul;;;dificil
+Arte;¿Quién esculpió el David?;Miguel Ángel;Donatello|Miguel Ángel|Bernini|Rodin;B;dificil
+Arte;¿De qué país era Frida Kahlo?;México;España|México|Colombia|Cuba;B;dificil
+Deportes;¿Cuántos jugadores tiene un equipo de fútbol en cancha?;11;9|10|11|12;C;facil
+Deportes;¿Cuántos puntos vale un triple en básquet?;3;;;facil
+Deportes;¿Cuántos anillos tiene el símbolo olímpico?;5;4|5|6|7;B;facil
+Deportes;En el tenis se usa una raqueta.;Verdadero;Verdadero|Falso;A;facil
+Deportes;¿En qué deporte se hace un "home run"?;Béisbol;Críquet|Béisbol|Golf|Rugby;B;facil
+Deportes;¿Cada cuántos años se hacen los Juegos Olímpicos de verano?;4;2|3|4|5;C;dificil
+Deportes;¿En qué deporte se usa una red y un volante (pluma)?;Bádminton;Tenis|Bádminton|Vóley|Squash;B;dificil
+Deportes;¿En qué país se jugó el primer Mundial de fútbol?;Uruguay;Brasil|Italia|Uruguay|Argentina;C;dificil
+Deportes;¿Cuántos minutos dura un partido de básquet FIBA?;40;40|48|60|90;A;dificil

@@ -158,12 +158,14 @@
 
   /* =========================================================
      BANCO DE PREGUNTAS (CSV)
-     Columnas: tematica ; dificultad ; pregunta ; respuesta ; opciones
+     Columnas: tematica ; pregunta ; respuesta ; opciones ; opcion_correcta ; dificultad
        - separador , ; o tabulación (se detecta solo)
        - dificultad: facil / dificil (opcional; vacía = sirve para las dos)
        - opciones: opcional, separadas por |   (ej: París|Roma|Lima)
          o en columnas opcion_a, opcion_b, ...
          Verdadero|Falso = pregunta de verdadero o falso
+       - opcion_correcta: texto, letra (B) o número (2) de la opción correcta.
+         El comodín "eliminar opciones" nunca saca esa.
      ========================================================= */
   function parseLevel(s) {
     const v = norm(s);
@@ -177,15 +179,40 @@
     if (!o.length) return ['verdadero', 'falso'].includes(norm(q.a));
     return o.length === 2 && o.every(x => ['verdadero', 'falso', 'v', 'f'].includes(x));
   };
-  // Posición de la respuesta correcta entre las opciones (-1 si no está)
-  function answerIndex(q) {
-    const a = norm(q.a);
+  // Posición de un texto entre las opciones (-1 si no está o es ambiguo)
+  function textIndex(options, text) {
+    const a = norm(text);
     if (!a) return -1;
-    const o = q.options.map(norm);
+    const o = options.map(norm);
     const exact = o.indexOf(a);
     if (exact >= 0) return exact;
     const near = o.map((x, i) => (x && (a.includes(x) || x.includes(a)) ? i : -1)).filter(i => i >= 0);
     return near.length === 1 ? near[0] : -1;
+  }
+  // Interpreta la columna opcion_correcta: el texto de la opción,
+  // una letra (A, b, "B)", "Opción C") o un número (1 = la primera).
+  // Si hay dudas, gana la lectura que coincide con la columna respuesta.
+  function correctIndex(options, value, answer) {
+    const v = norm(value);
+    const byAnswer = textIndex(options, answer);
+    if (!v) return byAnswer;
+    const cands = [];
+    const exact = options.map(norm).indexOf(v);
+    if (exact >= 0) cands.push(exact);
+    const letter = v.match(/^(?:opcion\s*)?([a-j])\s*[).:-]?$/);
+    if (letter) cands.push(letter[1].charCodeAt(0) - 97);
+    const num = v.match(/^(?:opcion\s*)?(\d+)\s*[).:-]?$/);
+    if (num) cands.push(+num[1] - 1);
+    const valid = cands.filter(i => i >= 0 && i < options.length);
+    if (valid.includes(byAnswer)) return byAnswer;
+    if (valid.length) return valid[0];
+    const near = textIndex(options, value);
+    return near >= 0 ? near : byAnswer;
+  }
+  // Posición de la respuesta correcta entre las opciones (-1 si no se sabe)
+  function answerIndex(q) {
+    if (Number.isInteger(q.correct) && q.correct >= 0 && q.correct < q.options.length) return q.correct;
+    return textIndex(q.options, q.a);
   }
   const canRemoveOptions = q => !!q && q.options.length >= 3 && !isTF(q) && answerIndex(q) >= 0;
   function parseCSV(text) {
@@ -221,10 +248,11 @@
     let iQ = find('pregunta', 'preguntas');
     let iA = find('respuesta', 'respuestas', 'respuesta correcta');
     let iLevel = find('dificultad', 'nivel');
-    let iOpts = head.map((h, i) => (h.startsWith('opcion') ? i : -1)).filter(i => i >= 0);
+    let iRight = find('opcion_correcta', 'opcion correcta', 'opcioncorrecta', 'correcta');
+    let iOpts = head.map((h, i) => (h.startsWith('opcion') && i !== iRight ? i : -1)).filter(i => i >= 0);
     let data = rows.slice(1);
-    if (iQ < 0) { // sin encabezado: se asume el orden tematica, pregunta, respuesta, opciones, dificultad
-      iTheme = 0; iQ = 1; iA = 2; iOpts = [3]; iLevel = 4; data = rows;
+    if (iQ < 0) { // sin encabezado: se asume el orden tematica, pregunta, respuesta, opciones, opcion_correcta, dificultad
+      iTheme = 0; iQ = 1; iA = 2; iOpts = [3]; iRight = 4; iLevel = 5; data = rows;
     }
     if (iTheme < 0) throw new Error('Falta la columna "tematica".');
 
@@ -240,12 +268,14 @@
         .flatMap(i => String(r[i] || '').split('|'))
         .map(s => s.trim())
         .filter(Boolean);
+      const a = iA >= 0 ? (r[iA] || '').trim() : '';
       questions.push({
         id: questions.length,
         theme: canon.get(norm(rawTheme)),
         q,
-        a: iA >= 0 ? (r[iA] || '').trim() : '',
+        a,
         options,
+        correct: correctIndex(options, iRight >= 0 ? r[iRight] : '', a),
         level: iLevel >= 0 ? parseLevel(r[iLevel]) : '',
       });
     });
@@ -339,11 +369,11 @@
   }
 
   function downloadTemplate() {
-    const csv = '﻿tematica;dificultad;pregunta;respuesta;opciones\n' +
-      'Historia;facil;¿En qué año llegó Colón a América?;1492;1492|1810|1516|1776\n' +
-      'Historia;dificil;¿En qué año cayó el Muro de Berlín?;1989;1961|1989|1991|1975\n' +
-      'Ciencia;facil;El Sol es una estrella.;Verdadero;Verdadero|Falso\n' +
-      'Ciencia;dificil;¿Cuántos huesos tiene el cuerpo humano adulto?;206;\n';
+    const csv = '﻿tematica;pregunta;respuesta;opciones;opcion_correcta;dificultad\n' +
+      'Historia;¿En qué año llegó Colón a América?;1492;1492|1810|1516|1776;A;facil\n' +
+      'Historia;¿En qué año cayó el Muro de Berlín?;1989;1961|1989|1991|1975;B;dificil\n' +
+      'Ciencia;El Sol es una estrella.;Verdadero;Verdadero|Falso;A;facil\n' +
+      'Ciencia;¿Cuántos huesos tiene el cuerpo humano adulto?;206;;;dificil\n';
     const a = document.createElement('a');
     a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
     a.download = 'plantilla-preguntas.csv';
@@ -922,9 +952,9 @@
       };
 
       btnRemove.onclick = () => {
-        if (btnRemove.disabled) return;
-        team.jokers.eliminar--;
         const right = answerIndex(q);
+        if (btnRemove.disabled || right < 0) return; // sin correcta conocida no se elimina nada
+        team.jokers.eliminar--;
         const wrong = q.options.map((_, i) => i).filter(i => i !== right).sort(() => Math.random() - 0.5);
         removed = wrong.slice(0, q.options.length - 2); // quedan la correcta y una incorrecta
         blip(300, 0.15, 'square');
