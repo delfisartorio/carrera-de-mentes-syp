@@ -756,6 +756,46 @@
     layoutTokens(true);
   }
 
+  // Escena del corral: el pollito en grande, caen las rejas encima y
+  // aparece el cartel. Se cierra sola o con un clic.
+  function jailScene(team) {
+    return new Promise(resolve => {
+      const BARS = 7;
+      const lost = team.jail > 1 ? `${team.jail} turnos` : 'el próximo turno';
+      const el = document.createElement('div');
+      el.className = 'jail-scene';
+      el.style.setProperty('--team', team.color);
+      el.innerHTML = `
+        <div class="jail-stage">
+          <div class="jail-avatar">${avatarHTML(team.avatar)}</div>
+          <div class="jail-gate">
+            ${Array.from({ length: BARS }, (_, i) => `<i class="jail-bar" style="--i:${i}"></i>`).join('')}
+            <b class="jail-cross top"></b><b class="jail-cross bottom"></b>
+          </div>
+        </div>
+        <div class="jail-sign">
+          <strong>¡Al corral!</strong>
+          <span>${esc(team.name)} pierde ${lost}</span>
+        </div>`;
+      document.body.appendChild(el);
+
+      // Un golpe seco por cada reja que cae y el lamento al final
+      for (let i = 0; i < BARS; i++) setTimeout(() => blip(110 - i * 6, 0.12, 'square'), 380 + i * 70);
+      setTimeout(() => { blip(70, 0.35, 'square'); el.classList.add('slammed'); }, 380 + BARS * 70 + 120);
+      setTimeout(sadTone, 1500);
+
+      let closed = false;
+      const close = () => {
+        if (closed) return;
+        closed = true;
+        el.classList.add('leaving');
+        setTimeout(() => { el.remove(); resolve(); }, 350);
+      };
+      el.addEventListener('click', close);
+      setTimeout(close, 3600);
+    });
+  }
+
   // Qué pasa al caer en una casilla
   async function resolveCell(team) {
     const cell = cells[team.pos];
@@ -765,10 +805,8 @@
     let theme = state.cellThemes[team.pos];
     if (theme === JAIL) {
       team.jail = Math.max(1, C.JAIL_TURNS | 0);
-      sadTone();
-      toast(`¡${team.name} cae al corral! Pierde ${team.jail > 1 ? `${team.jail} turnos` : 'el próximo turno'}`, 2600);
       save();
-      await sleep(900);
+      await jailScene(team);
       return 'jail';
     }
     if (!theme) { // Salida
