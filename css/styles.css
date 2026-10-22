@@ -585,6 +585,20 @@ kbd { background: var(--card); border: 2px solid var(--ink); border-radius: 4px;
   font-size: .8em;
 }
 .q-options li.removed { opacity: .2; text-decoration: line-through; }
+/* Opciones clickeables: el li queda como contenedor y el botón ocupa todo */
+.q-options li:has(.q-opt) { padding: 0; background: none; border: 0; box-shadow: none; }
+.q-opt {
+  display: flex; align-items: center; gap: .6em; width: 100%; height: 100%;
+  font: inherit; color: inherit; text-align: left; cursor: pointer;
+  background: #fff; border: 3px solid var(--ink); border-radius: 14px;
+  padding: .4em .7em; box-shadow: 0 3px 0 var(--ink);
+  transition: transform .1s, box-shadow .1s, background .2s;
+}
+.q-opt:not(:disabled):hover { transform: translateY(-2px); box-shadow: 0 5px 0 var(--ink); }
+.q-opt:not(:disabled):active { transform: translateY(2px); box-shadow: 0 1px 0 var(--ink); }
+.q-opt:disabled { cursor: default; }
+.q-opt.right { background: var(--ok); color: #fff; }
+.q-opt.wrong { background: var(--danger); color: #fff; }
 .q-jokers { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
 .q-jokers .btn { font-size: .85rem; padding: .4em .9em; }
 

@@ -939,9 +939,17 @@
         $('#q-meta').textContent = `${theme.name} · ${LEVEL_NAME[level]}`;
         $('#q-text').textContent = q ? q.q : `No hay preguntas de ${theme.name} en el banco: el moderador hace una.`;
         const opts = q ? q.options : [];
+        // Con opciones y correcta conocida se responde tocando la opción;
+        // si no (pregunta abierta), decide el moderador con Correcto / Incorrecto
+        const clickable = opts.length > 0 && answerIndex(q) >= 0;
+        $('#q-judge').hidden = clickable;
         $('#q-options').hidden = !opts.length;
-        $('#q-options').innerHTML = opts.map((o, i) =>
-          `<li class="${removed.includes(i) ? 'removed' : ''}"><b>${'ABCDEFGHIJ'[i] || i + 1}</b>${esc(o)}</li>`).join('');
+        $('#q-options').innerHTML = opts.map((o, i) => {
+          const off = removed.includes(i);
+          const body = `<b>${'ABCDEFGHIJ'[i] || i + 1}</b>${esc(o)}`;
+          return `<li class="${off ? 'removed' : ''}">${clickable
+            ? `<button type="button" class="q-opt" data-i="${i}" ${off ? 'disabled' : ''}>${body}</button>` : body}</li>`;
+        }).join('');
 
         const left = team.jokers;
         btnRemove.textContent = `Eliminar opciones (${left.eliminar | 0})`;
@@ -975,10 +983,28 @@
       const done = ok => {
         closeModal('#modal-question');
         $('#btn-q-ok').onclick = $('#btn-q-fail').onclick = btnRemove.onclick = btnSwap.onclick = null;
+        $('#q-options').onclick = null;
         resolve({ ok, q });
       };
       $('#btn-q-ok').onclick = () => done(true);
       $('#btn-q-fail').onclick = () => done(false);
+      // Al tocar una opción: se marca la correcta (y la elegida si falló),
+      // se bloquea todo y la ventana se cierra sola
+      $('#q-options').onclick = e => {
+        const b = e.target.closest('.q-opt');
+        if (!b || b.disabled) return;
+        const pick = +b.dataset.i, right = answerIndex(q), ok = pick === right;
+        $('#q-options').onclick = null;
+        btnRemove.disabled = btnSwap.disabled = true;
+        document.querySelectorAll('#q-options .q-opt').forEach(o => {
+          o.disabled = true;
+          const i = +o.dataset.i;
+          if (i === right) o.classList.add('right');
+          else if (i === pick) o.classList.add('wrong');
+        });
+        ok ? [660, 880].forEach((f, i) => setTimeout(() => blip(f, 0.12, 'sine'), i * 90)) : blip(180, 0.25, 'square');
+        setTimeout(() => done(ok), ok ? 1100 : 1800);
+      };
     });
   }
 
