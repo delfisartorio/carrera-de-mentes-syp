@@ -266,46 +266,51 @@ body {
   text-shadow: 1px 1px 0 var(--ink), -1px -1px 0 var(--ink), 1px -1px 0 var(--ink), -1px 1px 0 var(--ink);
   max-width: 100%; padding: 0 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
+/* ---------- Corral (cárcel) ----------
+   Arriba la foto (CONFIG.JAIL_IMAGE); si no existe, se ve el corral dibujado. */
+.cell-jail {
+  justify-content: flex-end;
+  background:
+    var(--jail-img, none) center / cover no-repeat,
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Crect width='100' height='100' fill='%23bfe3f2'/%3E%3Cpath d='M0 58 Q30 50 55 56 T100 54 V100 H0Z' fill='%237cb342'/%3E%3Cellipse cx='50' cy='86' rx='38' ry='9' fill='%23b9874f'/%3E%3Cg fill='%238d5a2b' stroke='%233b2412' stroke-width='2'%3E%3Crect x='3' y='38' width='94' height='8' rx='2'/%3E%3Crect x='3' y='58' width='94' height='8' rx='2'/%3E%3Cpath d='M10 30 l5 -6 l5 6 V84 H10Z'/%3E%3Cpath d='M35 30 l5 -6 l5 6 V84 H35Z'/%3E%3Cpath d='M60 30 l5 -6 l5 6 V84 H60Z'/%3E%3Cpath d='M85 30 l5 -6 l5 6 V84 H85Z'/%3E%3C/g%3E%3C/svg%3E") center / cover no-repeat,
+    #c8a26b;
+}
+.cell-jail .cell-label {
+  font-size: calc(var(--cell-min, 70px) * .16);
+  background: var(--card); color: var(--ink);
+  padding: 0 6px; border-radius: 999px; border: 1px solid var(--ink);
+  margin-bottom: 4%;
+}
 .cell-start .cell-label { font-size: calc(var(--cell-min, 70px) * .16); line-height: 1.1; }
 .cell-start .cell-sub { font-size: calc(var(--cell-min, 70px) * .12); font-weight: 600; margin-top: 4px; }
 
-/* Etiqueta de ganador en la lista de equipos */
-.winner-tag {
+/* Etiquetas en la lista de equipos */
+.winner-tag, .jail-tag {
   font-size: .7rem; background: var(--accent); border: 2px solid var(--ink);
   border-radius: 999px; padding: 0 .5em; vertical-align: middle;
 }
+.jail-tag { background: #b9874f; color: #fff; }
+.joker-badge {
+  display: inline-block; font-size: .68rem; font-weight: 700;
+  border: 2px solid var(--ink); border-radius: 6px; padding: 0 .4em; margin-left: 3px;
+  background: var(--accent); color: var(--ink); opacity: 1; vertical-align: 1px;
+}
+.joker-badge.used { background: transparent; opacity: .45; text-decoration: line-through; }
 
-/* Centro del tablero: leyenda de anillos a juntar */
-.board-center {
-  margin: 6%;
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  gap: calc(var(--cell-min, 70px) * .12);
-  background: color-mix(in srgb, var(--card) 88%, transparent);
-  border: 3px solid var(--ink); border-radius: 18px;
-  box-shadow: 0 5px 0 var(--ink);
-  padding: 2% 3%;
-  text-align: center;
-}
-.center-title {
-  font-weight: 700; text-transform: uppercase; letter-spacing: .04em;
-  font-size: calc(var(--cell-min, 70px) * .26);
-}
-.center-themes { display: flex; flex-wrap: wrap; justify-content: center; gap: calc(var(--cell-min, 70px) * .1); }
-.center-theme {
-  display: inline-flex; align-items: center; gap: .35em;
-  font-weight: 700; font-size: calc(var(--cell-min, 70px) * .19);
-  background: #fff; border: 2px solid var(--ink); border-radius: 999px;
-  padding: .15em .7em .15em .3em; box-shadow: 0 3px 0 var(--ink);
-}
-.center-ring {
-  width: 1.5em; height: .75em; border-radius: 50%;
-  background: var(--theme); border: 2px solid var(--ink);
-  box-shadow: inset 0 0 0 .2em color-mix(in srgb, var(--theme) 50%, white);
-}
+/* Leyenda de anillos a juntar (panel) */
+.ring-legend .theme-chips { gap: 5px; }
+.ring-legend .theme-chip { font-size: .8rem; }
 
 /* Anillos que faltan (panel / victoria) */
 .theme-chip.missing { background: #d8d0bc; color: #8a7f6a; text-shadow: none; opacity: .65; }
-.theme-options .btn.owned { opacity: .55; }
+.theme-chip.has-easy { opacity: 1; border-color: var(--theme); }
+.pips { display: inline-flex; gap: 2px; }
+.pips i {
+  width: .55em; height: .55em; border-radius: 50%;
+  border: 1px solid var(--ink); background: #fff;
+}
+.pips i.on { background: var(--theme); }
+.pick-options .btn.owned { opacity: .55; }
 .q-team em { font-weight: 400; opacity: .7; }
 
 .cell-num { line-height: 1; opacity: .85; }
@@ -353,9 +358,9 @@ body {
 
 .token {
    --tok: calc(var(--cell, 70px) * .62);
-   --gap: calc(var(--tok) * .14);
+   --gap: calc(var(--tok) * .2);
    --ring-h: calc(var(--tok) * .36);
-   --thick: calc(var(--tok) * .11);
+   --thick: calc(var(--tok) * .1);
    --vis: 0;
    --has: 0;
    position: absolute; left: 0; top: 0; width: 0; height: 0;
@@ -397,7 +402,9 @@ body {
   border-radius: 50%;
   background: radial-gradient(ellipse at 50% 35%, color-mix(in srgb, var(--rc) 45%, white) 0 25%, var(--rc) 70%);
   border: 2px solid var(--ink);
-  box-shadow: 0 var(--thick) 0 var(--ink);
+  /* canto del anillo del mismo color (más oscuro) para que se vea en la pila */
+  box-shadow: 0 var(--thick) 0 color-mix(in srgb, var(--rc) 70%, black),
+              0 calc(var(--thick) + 2px) 0 var(--ink);
 }
 .ring::after {
   content: '';
@@ -440,6 +447,7 @@ body {
 }
 
 .token.is-turn .token-avatar { animation: turn-pulse 1.3s ease-in-out infinite; }
+.token.in-jail .token-avatar { filter: grayscale(.85) drop-shadow(2px 2px 0 var(--ink)); }
 @keyframes turn-pulse {
   0%, 100% { outline: 0 solid transparent; outline-offset: 2px; }
   50% { outline: 4px solid var(--accent); outline-offset: 3px; }
@@ -548,14 +556,47 @@ kbd { background: var(--card); border: 2px solid var(--ink); border-radius: 4px;
   border-top: 16px solid var(--theme, var(--ink));
 }
 .question-card { padding: 40px 32px 32px; }
+.q-meta {
+  margin: 0; font-weight: 700; font-size: .9rem; text-transform: uppercase; letter-spacing: .08em;
+  color: color-mix(in srgb, var(--theme, var(--ink)) 70%, black);
+}
 .q-text {
   font-size: clamp(1.8rem, 3.6vw, 3rem) !important;
   line-height: 1.2;
-  margin: .3em 0 .8em !important;
+  margin: .3em 0 .6em !important;
 }
-/* ---------- Selector de temática ---------- */
-.theme-options { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin-top: 10px; }
-.theme-options .btn { background: var(--theme); color: #fff; text-shadow: 1px 1px 0 rgba(0,0,0,.4); }
+.q-options {
+  list-style: none; margin: 0 0 14px; padding: 0;
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;
+  text-align: left;
+}
+@media (max-width: 560px) { .q-options { grid-template-columns: 1fr; } }
+.q-options li {
+  display: flex; align-items: center; gap: .6em;
+  font-size: clamp(1.1rem, 2vw, 1.6rem); font-weight: 600;
+  background: #fff; border: 3px solid var(--ink); border-radius: 14px;
+  padding: .4em .7em; box-shadow: 0 3px 0 var(--ink);
+  transition: opacity .3s;
+}
+.q-options b {
+  flex: 0 0 auto; display: grid; place-items: center;
+  width: 1.6em; height: 1.6em; border-radius: 50%;
+  background: var(--theme, var(--accent)); color: #fff; border: 2px solid var(--ink);
+  font-size: .8em;
+}
+.q-options li.removed { opacity: .2; text-decoration: line-through; }
+.q-jokers { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+.q-jokers .btn { font-size: .85rem; padding: .4em .9em; }
+
+/* ---------- Ventana de elección (temática, dificultad, robo) ---------- */
+.pick-card { border-top: 12px solid var(--theme, var(--ink)); }
+.pick-options { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-top: 10px; }
+.pick-options .btn {
+  flex-direction: column; gap: 0; line-height: 1.15;
+  background: var(--theme); color: #fff; text-shadow: 1px 1px 0 rgba(0,0,0,.4);
+}
+.pick-options .btn small { font-size: .7em; font-weight: 600; opacity: .95; }
+.modal-text small { font-size: .8em; opacity: .85; }
 
 .victory-avatar {
   width: 150px; height: 150px; margin: 0 auto;

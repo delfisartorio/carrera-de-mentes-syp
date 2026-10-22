@@ -1,15 +1,38 @@
 /* =========================================================
    CARRERA DE MENTES — lógica del juego
-   Dinámica: pista circular. Cada casilla es de una temática.
-   Al caer se hace una pregunta de esa temática; si la responden
-   bien ganan el anillo de esa temática. Gana quien junte todos.
+   Dinámica: pista en zigzag que da la vuelta. Cada casilla es de una
+   temática. Al caer eligen pregunta fácil o difícil de esa temática:
+   difícil bien = anillo; 3 fáciles bien = anillo. Si aciertan siguen
+   tirando. Gana quien junte todos los anillos.
    (No hace falta tocar este archivo: usá js/config.js y css/styles.css)
    ========================================================= */
 (() => {
   'use strict';
 
   const C = CONFIG;
-  const TOTAL = 2 * C.COLUMNS + 2 * (C.ROWS - 2); // casillas de la vuelta
+  const JAIL = '#corral'; // marca de la casilla corral en cellThemes
+
+  // Recorrido de la viborita: lista de { row, col } de la grilla.
+  // Fila 1 de izquierda a derecha, codo, la siguiente de vuelta, etc.
+  // La última fila llega hasta la columna 1 y se sube por ahí a la Salida
+  // (la columna 2 queda libre para que se vea el camino de vuelta).
+  function buildPath() {
+    const W = Math.max(4, C.COLUMNS | 0);
+    const L = Math.max(2, (C.LANES | 0) + ((C.LANES | 0) % 2)); // par
+    const path = [];
+    for (let k = 0; k < L; k++) {
+      const row = 2 * k + 1;
+      const right = k % 2 === 0;
+      const from = k === 0 || k === L - 1 ? 1 : 3;
+      if (right) for (let c = from; c <= W; c++) path.push({ row, col: c });
+      else for (let c = W; c >= from; c--) path.push({ row, col: c });
+      if (k < L - 1) path.push({ row: row + 1, col: right ? W : 3 }); // codo
+    }
+    for (let row = 2 * L - 2; row >= 2; row--) path.push({ row, col: 1 }); // vuelta
+    return { path, cols: W, rows: 2 * L - 1 };
+  }
+  const TRACK = buildPath();
+  const TOTAL = TRACK.path.length; // casillas de la vuelta
   const $ = (s, el = document) => el.querySelector(s);
   const sleep = ms => new Promise(r => setTimeout(r, ms));
   const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -19,9 +42,11 @@
 
   /* state = {
        themes:     ['Historia', ...]   temáticas de esta partida (= anillos a juntar)
-       cellThemes: [null, 'Ciencia', ...] temática de cada casilla (0 = Salida)
-       teams:      [{ id, name, avatar, color, pos, rings:['Historia', ...] }]
-       turn, winners:[teamId], used:[questionId respondidas bien], lastQ
+       cellThemes: [null, 'Ciencia', '#corral', ...] temática de cada casilla (0 = Salida)
+       teams:      [{ id, name, avatar, color, pos, rings:['Historia', ...],
+                      easy:{ historia: 2 }  fáciles acertadas por temática (sin anillo aún)
+                      jokers:{ eliminar: 1, cambiar: 1 }, jail: turnos que pierde }]
+       turn, bonus (sigue tirando), winners:[teamId], used:[questionId respondidas bien], lastQ
      } */
   let state = null;
   let bank = { name: '', questions: [] }; // banco de preguntas cargado
@@ -51,6 +76,9 @@
     s.teams.forEach(t => {
       t.pos = ((t.pos | 0) % TOTAL + TOTAL) % TOTAL;
       t.rings = Array.isArray(t.rings) ? t.rings : [];
+      t.easy = t.easy && typeof t.easy === 'object' ? t.easy : {};
+      t.jokers = t.jokers && typeof t.jokers === 'object' ? t.jokers : { ...C.JOKERS };
+      t.jail = Math.max(0, t.jail | 0);
     });
     s.turn = Math.max(0, Math.min(s.teams.length - 1, s.turn | 0));
     s.winners = Array.isArray(s.winners) ? s.winners : [];
@@ -130,11 +158,36 @@
 
   /* =========================================================
      BANCO DE PREGUNTAS (CSV)
-     Columnas: tematica ; pregunta ; respuesta ; opciones
+     Columnas: tematica ; dificultad ; pregunta ; respuesta ; opciones
        - separador , ; o tabulación (se detecta solo)
+       - dificultad: facil / dificil (opcional; vacía = sirve para las dos)
        - opciones: opcional, separadas por |   (ej: París|Roma|Lima)
          o en columnas opcion_a, opcion_b, ...
+         Verdadero|Falso = pregunta de verdadero o falso
      ========================================================= */
+  function parseLevel(s) {
+    const v = norm(s);
+    if (/^(d|alta|alto|2)/.test(v)) return 'dificil';
+    if (/^(f|baja|bajo|1)/.test(v)) return 'facil';
+    return '';
+  }
+  const LEVEL_NAME = { facil: 'Fácil', dificil: 'Difícil' };
+  const isTF = q => {
+    const o = q.options.map(norm);
+    if (!o.length) return ['verdadero', 'falso'].includes(norm(q.a));
+    return o.length === 2 && o.every(x => ['verdadero', 'falso', 'v', 'f'].includes(x));
+  };
+  // Posición de la respuesta correcta entre las opciones (-1 si no está)
+  function answerIndex(q) {
+    const a = norm(q.a);
+    if (!a) return -1;
+    const o = q.options.map(norm);
+    const exact = o.indexOf(a);
+    if (exact >= 0) return exact;
+    const near = o.map((x, i) => (x && (a.includes(x) || x.includes(a)) ? i : -1)).filter(i => i >= 0);
+    return near.length === 1 ? near[0] : -1;
+  }
+  const canRemoveOptions = q => !!q && q.options.length >= 3 && !isTF(q) && answerIndex(q) >= 0;
   function parseCSV(text) {
     text = text.replace(/^﻿/, '');
     const first = text.split(/\r?\n/)[0] || '';
@@ -167,10 +220,11 @@
     let iTheme = find('tematica', 'tema', 'categoria', 'materia');
     let iQ = find('pregunta', 'preguntas');
     let iA = find('respuesta', 'respuestas', 'respuesta correcta');
+    let iLevel = find('dificultad', 'nivel');
     let iOpts = head.map((h, i) => (h.startsWith('opcion') ? i : -1)).filter(i => i >= 0);
     let data = rows.slice(1);
-    if (iQ < 0) { // sin encabezado: se asume el orden tematica, pregunta, respuesta, opciones
-      iTheme = 0; iQ = 1; iA = 2; iOpts = [3]; data = rows;
+    if (iQ < 0) { // sin encabezado: se asume el orden tematica, pregunta, respuesta, opciones, dificultad
+      iTheme = 0; iQ = 1; iA = 2; iOpts = [3]; iLevel = 4; data = rows;
     }
     if (iTheme < 0) throw new Error('Falta la columna "tematica".');
 
@@ -192,6 +246,7 @@
         q,
         a: iA >= 0 ? (r[iA] || '').trim() : '',
         options,
+        level: iLevel >= 0 ? parseLevel(r[iLevel]) : '',
       });
     });
     if (!questions.length) throw new Error('No se encontró ninguna pregunta. Revisá las columnas "tematica" y "pregunta".');
@@ -264,10 +319,16 @@
     status.textContent = n
       ? `${n} preguntas cargadas${bank.name ? ` (${bank.name})` : ''} · ${used.length} temáticas = ${used.length} anillos para ganar`
       : 'Cargá un banco de preguntas para poder jugar (o usá el de ejemplo).';
-    $('#bank-themes').innerHTML = used.map(t =>
-      themeChip(t, ` <small>${bank.questions.filter(q => norm(q.theme) === norm(t)).length}</small>`)).join('');
+    $('#bank-themes').innerHTML = used.map(t => {
+      const qs = bank.questions.filter(q => norm(q.theme) === norm(t));
+      const f = qs.filter(q => q.level === 'facil').length, d = qs.filter(q => q.level === 'dificil').length;
+      return themeChip(t, ` <small>${f || d ? `${f} fáciles · ${d} difíciles` : qs.length}</small>`);
+    }).join('');
 
-    if (all.length > C.MAX_THEMES) {
+    if (n && !bank.questions.some(q => q.level)) {
+      err.textContent = 'El CSV no tiene columna "dificultad": cualquier pregunta sale como fácil o difícil.';
+      err.hidden = false;
+    } else if (all.length > C.MAX_THEMES) {
       err.textContent = `El CSV tiene ${all.length} temáticas; se usan las primeras ${C.MAX_THEMES}. Quedan afuera: ${all.slice(C.MAX_THEMES).join(', ')}.`;
       err.hidden = false;
     } else if (n && all.length < C.MIN_THEMES) {
@@ -278,9 +339,11 @@
   }
 
   function downloadTemplate() {
-    const csv = '﻿tematica;pregunta;respuesta;opciones\n' +
-      'Historia;¿En qué año llegó Colón a América?;1492;1492|1810|1516|1776\n' +
-      'Ciencia;¿Cuál es el planeta más grande?;Júpiter;\n';
+    const csv = '﻿tematica;dificultad;pregunta;respuesta;opciones\n' +
+      'Historia;facil;¿En qué año llegó Colón a América?;1492;1492|1810|1516|1776\n' +
+      'Historia;dificil;¿En qué año cayó el Muro de Berlín?;1989;1961|1989|1991|1975\n' +
+      'Ciencia;facil;El Sol es una estrella.;Verdadero;Verdadero|Falso\n' +
+      'Ciencia;dificil;¿Cuántos huesos tiene el cuerpo humano adulto?;206;\n';
     const a = document.createElement('a');
     a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
     a.download = 'plantilla-preguntas.csv';
@@ -288,15 +351,25 @@
     setTimeout(() => URL.revokeObjectURL(a.href), 1000);
   }
 
-  // Pregunta al azar de una temática, entre las que todavía no se
-  // respondieron bien. Si se agotaron, se vuelven a habilitar todas.
-  function pickQuestion(theme) {
-    const pool = bank.questions.filter(q => norm(q.theme) === norm(theme));
+  // Preguntas de una temática y dificultad (las sin dificultad sirven
+  // para las dos). Si no hay de esa dificultad, todas las de la temática.
+  function questionPool(theme, level) {
+    const all = bank.questions.filter(q => norm(q.theme) === norm(theme));
+    const pool = all.filter(q => !q.level || q.level === level);
+    return pool.length ? pool : all;
+  }
+
+  // Pregunta al azar entre las que todavía no se respondieron bien.
+  // Si se agotaron, se vuelven a habilitar todas. `skip` = id a evitar
+  // (la pregunta que se está cambiando con el comodín).
+  function pickQuestion(theme, level, skip = null) {
+    const pool = questionPool(theme, level);
     if (!pool.length) return null;
-    let fresh = pool.filter(q => !state.used.includes(q.id));
+    let fresh = pool.filter(q => !state.used.includes(q.id) && q.id !== skip);
     if (!fresh.length) {
       state.used = state.used.filter(id => !pool.some(q => q.id === id));
-      fresh = pool;
+      fresh = pool.filter(q => q.id !== skip);
+      if (!fresh.length) fresh = pool;
       toast(`Se usaron todas las preguntas de ${theme}: vuelven a salir`, 2500);
     }
     // evita repetir justo la última pregunta (si hay otra opción)
@@ -401,20 +474,31 @@
     });
   }
 
+  // Casillas de corral, repartidas a lo largo de la vuelta
+  function jailIndexes() {
+    const n = Math.max(0, C.JAIL_CELLS | 0), out = [];
+    for (let k = 1; k <= n; k++) out.push(Math.round(TOTAL * k / (n + 1)));
+    return out;
+  }
+
   // Reparte las temáticas en las casillas: en bloques mezclados para que
   // haya de todas a lo largo de la vuelta y nunca dos iguales seguidas.
   function buildCellThemes(themes) {
     const out = [null]; // casilla 0 = Salida
-    let prev = null;
-    while (out.length < TOTAL) {
-      const block = [...themes];
-      for (let i = block.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [block[i], block[j]] = [block[j], block[i]];
+    const jails = new Set(jailIndexes());
+    let block = [], prev = null;
+    for (let i = 1; i < TOTAL; i++) {
+      if (jails.has(i)) { out.push(JAIL); continue; }
+      if (!block.length) {
+        block = [...themes];
+        for (let a = block.length - 1; a > 0; a--) {
+          const b = Math.floor(Math.random() * (a + 1));
+          [block[a], block[b]] = [block[b], block[a]];
+        }
+        if (block.length > 1 && block[0] === prev) [block[0], block[1]] = [block[1], block[0]];
       }
-      if (block.length > 1 && block[0] === prev) [block[0], block[1]] = [block[1], block[0]];
-      block.forEach(t => { if (out.length < TOTAL) out.push(t); });
-      prev = out[out.length - 1];
+      prev = block.shift();
+      out.push(prev);
     }
     return out;
   }
@@ -428,7 +512,7 @@
     }
     const stamp = Date.now().toString(36);
     state = {
-      version: 3,
+      version: 4,
       themes,
       cellThemes: buildCellThemes(themes),
       teams: draft.map((t, i) => ({
@@ -438,8 +522,12 @@
         color: t.color,
         pos: 0,
         rings: [],
+        easy: {},
+        jokers: { ...C.JOKERS },
+        jail: 0,
       })),
       turn: 0,
+      bonus: false,
       winners: [],
       used: [],
       lastQ: null,
@@ -450,28 +538,15 @@
   }
 
   /* =========================================================
-     TABLERO (pista circular alrededor de la grilla)
+     TABLERO (viborita en zigzag, ver buildPath)
      ========================================================= */
-  // Posición en la grilla de la casilla i, en sentido horario
-  // desde la esquina superior izquierda.
-  function cellGridPos(i) {
-    const W = C.COLUMNS, H = C.ROWS;
-    if (i < W) return { row: 1, col: i + 1 };                       // arriba →
-    i -= W;
-    if (i < H - 1) return { row: i + 2, col: W };                   // derecha ↓
-    i -= H - 1;
-    if (i < W - 1) return { row: H, col: W - 1 - i };               // abajo ←
-    i -= W - 1;
-    return { row: H - 1 - i, col: 1 };                              // izquierda ↑
-  }
-
   function buildBoard() {
     const board = $('#board');
     board.querySelectorAll('.cell, .board-center').forEach(c => c.remove());
     cells.length = 0;
 
-    board.style.setProperty('--cols', C.COLUMNS);
-    board.style.setProperty('--rows', C.ROWS);
+    board.style.setProperty('--cols', TRACK.cols);
+    board.style.setProperty('--rows', TRACK.rows);
     if (C.BOARD_BACKGROUND) {
       board.style.backgroundImage = `url("${C.BOARD_BACKGROUND}")`;
       const area = C.BOARD_AREA || {};
@@ -482,12 +557,12 @@
       img.onload = () => board.style.setProperty('--ratio', img.naturalWidth / img.naturalHeight);
       img.src = C.BOARD_BACKGROUND;
     } else {
-      board.style.setProperty('--ratio', C.COLUMNS / C.ROWS);
+      board.style.setProperty('--ratio', TRACK.cols / TRACK.rows);
     }
 
     const frag = document.createDocumentFragment();
     for (let i = 0; i < TOTAL; i++) {
-      const { row, col } = cellGridPos(i);
+      const { row, col } = TRACK.path[i];
       const el = document.createElement('div');
       el.className = 'cell';
       el.dataset.index = i;
@@ -495,7 +570,11 @@
       el.style.gridColumn = col;
       if (i === 0) {
         el.classList.add('cell-start');
-        el.innerHTML = `<span class="cell-label">Salida</span>${C.START_IS_WILD ? '<span class="cell-sub">Comodín</span>' : ''}`;
+        el.innerHTML = `<span class="cell-label">Salida</span>${C.START_IS_WILD ? '<span class="cell-sub">Elegís temática</span>' : ''}`;
+      } else if (state.cellThemes[i] === JAIL) {
+        el.classList.add('cell-jail');
+        if (C.JAIL_IMAGE) el.style.setProperty('--jail-img', `url("${C.JAIL_IMAGE}")`);
+        el.innerHTML = '<span class="cell-label">Corral</span>';
       } else {
         const t = themeInfo(state.cellThemes[i]);
         el.classList.add('cell-theme');
@@ -505,21 +584,12 @@
       cells.push(el);
       frag.appendChild(el);
     }
-
-    // Centro: leyenda de temáticas (los anillos a juntar)
-    const center = document.createElement('div');
-    center.className = 'board-center';
-    center.style.gridRow = `2 / ${C.ROWS}`;
-    center.style.gridColumn = `2 / ${C.COLUMNS}`;
-    center.innerHTML = `
-      <div class="center-title">¡Juntá los ${state.themes.length} anillos!</div>
-      <div class="center-themes">${state.themes.map(t => {
-        const info = themeInfo(t);
-        return `<div class="center-theme" style="--theme:${info.color}"><span class="center-ring"></span>${esc(info.name)}</div>`;
-      }).join('')}</div>`;
-    frag.appendChild(center);
-
     board.insertBefore(frag, $('#tokens'));
+
+    // Leyenda de temáticas (los anillos a juntar) en el panel
+    $('#ring-legend').innerHTML = `
+      <p class="panel-label">Juntá los ${state.themes.length} anillos</p>
+      <div class="theme-chips">${state.themes.map(t => themeChip(t)).join('')}</div>`;
   }
 
   function measure() {
@@ -595,6 +665,7 @@
       el.style.transform = `translate(${x}px, ${y}px)`;
       el.style.zIndex = t.id === movingId ? 1000 : Math.round(y) + k;
       el.classList.toggle('is-turn', !!cur && t.id === cur.id && !busy);
+      el.classList.toggle('in-jail', t.jail > 0);
     });
 
     if (!animate) {
@@ -616,12 +687,22 @@
   const currentTeam = () => state && state.teams[state.turn];
   const allFinished = () => state.teams.every(isWinner);
 
+  // Pasa al siguiente equipo que no haya ganado. Los que están en el
+  // corral pierden ese turno (se les descuenta y se sigue de largo).
   function nextTurn() {
+    state.bonus = false;
     const n = state.teams.length;
-    for (let i = 1; i <= n; i++) {
-      const idx = (state.turn + i) % n;
-      if (!isWinner(state.teams[idx])) { state.turn = idx; return; }
+    const skipped = [];
+    let idx = state.turn;
+    for (let guard = 0; guard < n * (1 + Math.max(1, C.JAIL_TURNS | 0)) + 1; guard++) {
+      idx = (idx + 1) % n;
+      const t = state.teams[idx];
+      if (isWinner(t)) continue;
+      if (t.jail > 0) { t.jail--; skipped.push(t.name); continue; }
+      state.turn = idx;
+      break;
     }
+    if (skipped.length) toast(`${skipped.join(', ')}: ${skipped.length > 1 ? 'pierden' : 'pierde'} el turno en el corral`, 2600);
   }
 
   function pushHistory() {
@@ -652,10 +733,18 @@
     await sleep(450);
 
     let theme = state.cellThemes[team.pos];
+    if (theme === JAIL) {
+      team.jail = Math.max(1, C.JAIL_TURNS | 0);
+      sadTone();
+      toast(`¡${team.name} cae al corral! Pierde ${team.jail > 1 ? `${team.jail} turnos` : 'el próximo turno'}`, 2600);
+      save();
+      await sleep(900);
+      return 'jail';
+    }
     if (!theme) { // Salida
       if (!C.START_IS_WILD) return;
-      toast('¡Comodín! Elijan la temática');
-      theme = await chooseTheme(team, 'Comodín: ¿de qué temática quieren la pregunta?');
+      toast('Salida: elijan la temática');
+      theme = await chooseTheme(team, '¿De qué temática quieren la pregunta?');
       if (!theme) return;
     }
     return runQuestion(team, theme);
@@ -675,22 +764,26 @@
 
     await walk(team, steps);
     const result = await resolveCell(team);
-
-    // Acertó una categoría que ya tenía: vuelve a tirar (no pasa el turno)
-    if (result === 'extra' && C.EXTRA_TURN_ON_REPEAT && !isWinner(team)) {
-      state.bonus = true;
-      toast(`¡Correcto! ${team.name} vuelve a tirar`, 2200);
-    } else {
-      nextTurn();
-    }
+    afterTurn(team, result);
     busy = false;
     save();
     renderPanel(true);
   }
 
+  // Si respondió bien sigue tirando; si no, pasa el turno
+  function afterTurn(team, result) {
+    if (result === 'ok' && C.CORRECT_KEEPS_TURN && !isWinner(team)) {
+      state.bonus = true;
+      toast(`¡Correcto! ${team.name} sigue tirando`, 2200);
+    } else {
+      nextTurn();
+    }
+  }
+
   function addRing(team, theme) {
     if (hasRing(team, theme)) return false;
     team.rings.push(themeInfo(theme).name);
+    delete team.easy[norm(theme)];
     renderRings(team, true);
     [880, 1175].forEach((f, i) => setTimeout(() => blip(f, 0.12, 'sine'), i * 90));
     save();
@@ -704,6 +797,33 @@
     renderRings(team, false);
     save();
     renderPanel();
+  }
+
+  // Si comparte casilla con otros equipos, puede robarles un anillo
+  // que no tenga (el otro equipo se queda sin ese anillo).
+  async function offerSteal(team) {
+    const loot = [];
+    state.teams.forEach(o => {
+      if (o.id === team.id || o.pos !== team.pos) return;
+      o.rings.forEach(r => { if (!hasRing(team, r)) loot.push({ from: o, ring: r }); });
+    });
+    if (!loot.length) return;
+    const pick = await pickOption(
+      '¿Qué anillo roban?',
+      `<strong>${esc(team.name)}</strong> comparte casilla y respondió bien: puede robar un anillo.`,
+      loot.map(l => {
+        const t = themeInfo(l.ring);
+        return { value: l, color: t.color, html: `${esc(t.name)}<small>de ${esc(l.from.name)}</small>` };
+      }),
+      'No robar');
+    if (!pick) return;
+    const { from, ring } = pick;
+    from.rings = from.rings.filter(r => norm(r) !== norm(ring));
+    state.winners = state.winners.filter(id => id !== from.id);
+    renderRings(from, false);
+    addRing(team, ring);
+    toast(`¡${team.name} le robó el anillo de ${themeInfo(ring).name} a ${from.name}!`, 2600);
+    await sleep(1000);
   }
 
   function checkWin(team) {
@@ -727,74 +847,148 @@
   /* =========================================================
      PREGUNTAS
      ========================================================= */
-  // Devuelve 'ring' (ganó anillo), 'extra' (acertó una categoría que ya
-  // tenía) o 'fail' (respuesta incorrecta).
+  // Elige dificultad, pregunta y aplica el resultado.
+  // Devuelve 'ok' (respondió bien) o 'fail'.
   async function runQuestion(team, theme) {
-    const q = pickQuestion(theme);
-    const ok = await askQuestion(team, q, theme);
-    let result = 'fail';
-    if (ok) {
-      if (q) state.used.push(q.id); // respondida bien: no vuelve a salir
-      const name = themeInfo(theme).name;
-      if (addRing(team, theme)) {
-        result = 'ring';
-        toast(`¡Anillo de ${name} para ${team.name}!`);
-        await sleep(1000);
-        checkWin(team);
-      } else {
-        result = 'extra';
-        [660, 880, 1100].forEach((f, i) => setTimeout(() => blip(f, 0.1, 'sine'), i * 90));
-        await sleep(400);
-      }
-    } else {
+    const info = themeInfo(theme);
+    const owned = hasRing(team, theme);
+    const k = team.easy[norm(theme)] || 0;
+    const rivals = state.teams.filter(o => o.id !== team.id && o.pos === team.pos && o.rings.length);
+    const notes = [
+      owned ? 'Ya tienen este anillo: si aciertan, siguen tirando.' : '',
+      rivals.length ? `Si aciertan pueden robarle un anillo a ${rivals.map(o => esc(o.name)).join(' o ')}.` : '',
+    ].filter(Boolean).map(s => `<br><small>${s}</small>`).join('');
+    const level = await pickOption(
+      info.name,
+      `<strong>${esc(team.name)}</strong>: ¿pregunta fácil o difícil?${notes}`,
+      [
+        { value: 'facil', color: 'var(--ok)', html: `Fácil<small>${owned ? 'sigue tirando' : `${C.EASY_FOR_RING} fáciles = anillo (llevan ${k})`}</small>` },
+        { value: 'dificil', color: 'var(--danger)', html: `Difícil<small>${owned ? 'sigue tirando' : 'anillo directo'}</small>` },
+      ],
+      null, info.color);
+
+    const { ok, q } = await askQuestion(team, theme, level);
+    if (!ok) {
       sadTone();
+      save();
+      return 'fail';
     }
+    if (q) state.used.push(q.id); // respondida bien: no vuelve a salir
+
+    if (owned) {
+      [660, 880, 1100].forEach((f, i) => setTimeout(() => blip(f, 0.1, 'sine'), i * 90));
+      await sleep(400);
+    } else if (level === 'dificil' || k + 1 >= C.EASY_FOR_RING) {
+      addRing(team, theme);
+      toast(`¡Anillo de ${info.name} para ${team.name}!`);
+      await sleep(1000);
+    } else {
+      team.easy[norm(theme)] = k + 1;
+      [660, 880].forEach((f, i) => setTimeout(() => blip(f, 0.1, 'sine'), i * 90));
+      toast(`Fácil correcta: ${k + 1} de ${C.EASY_FOR_RING} para el anillo de ${info.name}`, 2200);
+      renderPanel();
+      await sleep(900);
+    }
+    await offerSteal(team);
+    checkWin(team);
     save();
-    return result;
+    return 'ok';
   }
 
-  // Muestra solo la pregunta y los botones Correcto / Incorrecto.
-  // (El borde superior toma el color de la temática.)
-  // Devuelve true/false según decida el moderador.
-  function askQuestion(team, q, themeName) {
+  // Pregunta (con opciones si las tiene), comodines y Correcto / Incorrecto.
+  // El borde superior toma el color de la temática.
+  // Devuelve { ok, q } según decida el moderador.
+  function askQuestion(team, themeName, level) {
     return new Promise(resolve => {
       const theme = themeInfo(themeName);
+      let q = pickQuestion(themeName, level);
+      let removed = [];
+      const btnRemove = $('#btn-joker-remove'), btnSwap = $('#btn-joker-swap');
+
+      const render = () => {
+        $('#q-meta').textContent = `${theme.name} · ${LEVEL_NAME[level]}`;
+        $('#q-text').textContent = q ? q.q : `No hay preguntas de ${theme.name} en el banco: el moderador hace una.`;
+        const opts = q ? q.options : [];
+        $('#q-options').hidden = !opts.length;
+        $('#q-options').innerHTML = opts.map((o, i) =>
+          `<li class="${removed.includes(i) ? 'removed' : ''}"><b>${'ABCDEFGHIJ'[i] || i + 1}</b>${esc(o)}</li>`).join('');
+
+        const left = team.jokers;
+        btnRemove.textContent = `Eliminar opciones (${left.eliminar | 0})`;
+        btnRemove.disabled = !(left.eliminar > 0) || removed.length > 0 || !canRemoveOptions(q);
+        btnRemove.title = q && isTF(q) ? 'No se puede en Verdadero/Falso' : '';
+        btnSwap.textContent = `Cambiar pregunta (${left.cambiar | 0})`;
+        btnSwap.disabled = !(left.cambiar > 0) || !q || questionPool(themeName, level).length < 2;
+      };
+
+      btnRemove.onclick = () => {
+        if (btnRemove.disabled) return;
+        team.jokers.eliminar--;
+        const right = answerIndex(q);
+        const wrong = q.options.map((_, i) => i).filter(i => i !== right).sort(() => Math.random() - 0.5);
+        removed = wrong.slice(0, q.options.length - 2); // quedan la correcta y una incorrecta
+        blip(300, 0.15, 'square');
+        save(); render(); renderPanel();
+      };
+      btnSwap.onclick = () => {
+        if (btnSwap.disabled) return;
+        team.jokers.cambiar--;
+        q = pickQuestion(themeName, level, q.id);
+        removed = [];
+        blip(500, 0.12, 'square');
+        save(); render(); renderPanel();
+      };
+
+      render();
       $('#question-card').style.setProperty('--theme', theme.color);
-      $('#q-text').textContent = q ? q.q : `No hay preguntas de ${theme.name} en el banco: el moderador hace una.`;
       openModal('#modal-question');
       const done = ok => {
         closeModal('#modal-question');
-        $('#btn-q-ok').onclick = $('#btn-q-fail').onclick = null;
-        resolve(ok);
+        $('#btn-q-ok').onclick = $('#btn-q-fail').onclick = btnRemove.onclick = btnSwap.onclick = null;
+        resolve({ ok, q });
       };
       $('#btn-q-ok').onclick = () => done(true);
       $('#btn-q-fail').onclick = () => done(false);
     });
   }
 
-  // Selector de temática (comodín o anillo manual).
-  // Las temáticas cuyo anillo ya tiene el equipo se muestran marcadas.
-  function chooseTheme(team, title = '¿Anillo de qué temática?', onlyMissing = false) {
+  // Ventana de elección genérica: opciones = [{ value, color, html, disabled }].
+  // cancelLabel = null oculta el botón de cancelar. Devuelve value o null.
+  function pickOption(title, sub, opts, cancelLabel = 'Cancelar', accent = null) {
     return new Promise(resolve => {
-      $('#theme-title').textContent = title;
-      $('#theme-for').innerHTML = `Equipo: <strong>${esc(team.name)}</strong>`;
-      $('#theme-options').innerHTML = state.themes.map(name => {
-        const t = themeInfo(name);
-        const owned = hasRing(team, name);
-        return `<button type="button" class="btn ${owned ? 'owned' : ''}" data-theme="${esc(t.name)}" style="--theme:${t.color}" ${owned && onlyMissing ? 'disabled' : ''}>${esc(t.name)}${owned ? ' (ya lo tienen)' : ''}</button>`;
-      }).join('');
-      openModal('#modal-theme');
+      $('#pick-card').style.setProperty('--theme', accent || 'var(--ink)');
+      $('#pick-title').textContent = title;
+      $('#pick-sub').innerHTML = sub;
+      $('#pick-options').innerHTML = opts.map((o, i) =>
+        `<button type="button" class="btn ${o.cls || ''}" data-i="${i}" style="--theme:${o.color}" ${o.disabled ? 'disabled' : ''}>${o.html}</button>`).join('');
+      const cancel = $('#btn-pick-cancel');
+      cancel.hidden = !cancelLabel;
+      cancel.textContent = cancelLabel || '';
+      openModal('#modal-pick');
       const done = val => {
-        closeModal('#modal-theme');
-        $('#theme-options').onclick = $('#btn-theme-cancel').onclick = null;
+        closeModal('#modal-pick');
+        $('#pick-options').onclick = cancel.onclick = null;
         resolve(val);
       };
-      $('#theme-options').onclick = e => {
-        const b = e.target.closest('[data-theme]');
-        if (b && !b.disabled) done(b.dataset.theme);
+      $('#pick-options').onclick = e => {
+        const b = e.target.closest('[data-i]');
+        if (b && !b.disabled) done(opts[+b.dataset.i].value);
       };
-      $('#btn-theme-cancel').onclick = () => done(null);
+      cancel.onclick = () => done(null);
     });
+  }
+
+  // Selector de temática (Salida o anillo manual).
+  // Las temáticas cuyo anillo ya tiene el equipo se muestran marcadas.
+  function chooseTheme(team, title = '¿Anillo de qué temática?', onlyMissing = false) {
+    return pickOption(title, `Equipo: <strong>${esc(team.name)}</strong>`, state.themes.map(name => {
+      const t = themeInfo(name);
+      const owned = hasRing(team, name);
+      return {
+        value: t.name, color: t.color, cls: owned ? 'owned' : '', disabled: owned && onlyMissing,
+        html: `${esc(t.name)}${owned ? '<small>ya lo tienen</small>' : ''}`,
+      };
+    }));
   }
 
   async function giveRingManually(team) {
@@ -809,9 +1003,21 @@
   /* =========================================================
      PANEL
      ========================================================= */
-  // Fila de anillos de un equipo: los que tiene a color, los que faltan apagados
+  // Fila de anillos de un equipo: los que tiene a color, los que faltan
+  // apagados (con puntitos por las fáciles acertadas de esa temática)
   function ringProgress(team) {
-    return state.themes.map(t => themeChip(t, '', hasRing(team, t) ? '' : 'missing')).join('');
+    return state.themes.map(t => {
+      if (hasRing(team, t)) return themeChip(t);
+      const k = (team.easy && team.easy[norm(t)]) || 0;
+      const pips = k ? `<span class="pips" title="${k} de ${C.EASY_FOR_RING} fáciles">${
+        Array.from({ length: C.EASY_FOR_RING }, (_, i) => `<i class="${i < k ? 'on' : ''}"></i>`).join('')}</span>` : '';
+      return themeChip(t, pips, k ? 'missing has-easy' : 'missing');
+    }).join('');
+  }
+  function jokerBadges(team) {
+    const j = team.jokers || {};
+    return [['eliminar', 'Eliminar'], ['cambiar', 'Cambiar']].map(([k, label]) =>
+      `<span class="joker-badge ${j[k] > 0 ? '' : 'used'}" title="Comodín ${label.toLowerCase()}${j[k] > 0 ? '' : ' (usado)'}">${label}</span>`).join('');
   }
 
   function renderPanel(turnChanged = false) {
@@ -827,7 +1033,7 @@
       card.innerHTML = `
         <div class="turn-avatar">${avatarHTML(cur.avatar)}</div>
         <div>
-          <div class="turn-label">${state.bonus ? 'Vuelve a tirar' : 'Turno de'}</div>
+          <div class="turn-label">${state.bonus ? 'Sigue tirando' : 'Turno de'}</div>
           <div class="turn-name">${esc(cur.name)}</div>
           <div class="turn-meta">Anillos: ${cur.rings.length} de ${state.themes.length}</div>
         </div>`;
@@ -852,8 +1058,8 @@
       <li class="score-item ${cur && t.id === cur.id && !finished ? 'current' : ''} ${isWinner(t) ? 'finished' : ''}" style="--team:${t.color}" data-id="${t.id}">
         <div class="score-avatar">${avatarHTML(t.avatar)}</div>
         <div class="score-info">
-          <div class="score-name">${esc(t.name)}${isWinner(t) ? ' <span class="winner-tag">Ganador</span>' : ''}</div>
-          <div class="score-pos">Anillos: ${t.rings.length} de ${state.themes.length}</div>
+          <div class="score-name">${esc(t.name)}${isWinner(t) ? ' <span class="winner-tag">Ganador</span>' : ''}${t.jail > 0 ? ' <span class="jail-tag">En el corral</span>' : ''}</div>
+          <div class="score-pos">Anillos: ${t.rings.length} de ${state.themes.length} ${jokerBadges(t)}</div>
         </div>
         <button type="button" class="btn-icon" data-ring="-1" title="Quitar último anillo" ${busy || !t.rings.length ? 'disabled' : ''}>−</button>
         <button type="button" class="btn-icon" data-ring="1" title="Dar anillo" ${busy || t.rings.length >= state.themes.length ? 'disabled' : ''}>+</button>
@@ -879,6 +1085,7 @@
     // Repetir la pregunta de la casilla actual (sin moverse)
     $('#btn-ask').addEventListener('click', async () => {
       if (busy) return;
+      if (state.cellThemes[currentTeam().pos] === JAIL) { toast('Están en el corral: no hay pregunta'); return; }
       pushHistory();
       busy = true; renderPanel();
       await resolveCell(currentTeam());

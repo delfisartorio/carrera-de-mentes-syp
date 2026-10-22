@@ -76,6 +76,8 @@
       <aside class="panel">
         <div id="turn-card" class="turn-card"></div>
 
+        <div id="ring-legend" class="panel-box ring-legend"></div>
+
         <div class="panel-box">
           <p class="panel-label">Valor del dado físico</p>
           <div id="dice-buttons" class="dice-buttons"></div>
@@ -111,7 +113,13 @@
   <!-- ============ MODAL: PREGUNTA ============ -->
   <div id="modal-question" class="modal" hidden>
     <div id="question-card" class="modal-card question-card">
+      <p id="q-meta" class="q-meta"></p>
       <h2 id="q-text" class="q-text"></h2>
+      <ol id="q-options" class="q-options" hidden></ol>
+      <div class="q-jokers">
+        <button id="btn-joker-remove" class="btn btn-ghost" type="button">Eliminar opciones</button>
+        <button id="btn-joker-swap" class="btn btn-ghost" type="button">Cambiar pregunta</button>
+      </div>
       <div class="modal-actions">
         <button id="btn-q-ok" class="btn btn-primary btn-big" type="button">Correcto</button>
         <button id="btn-q-fail" class="btn btn-danger btn-big" type="button">Incorrecto</button>
@@ -119,14 +127,14 @@
     </div>
   </div>
 
-  <!-- ============ MODAL: ELEGIR TEMÁTICA DEL ANILLO ============ -->
-  <div id="modal-theme" class="modal" hidden>
-    <div class="modal-card">
-      <h2 id="theme-title">¿Anillo de qué temática?</h2>
-      <p id="theme-for" class="modal-text"></p>
-      <div id="theme-options" class="theme-options"></div>
+  <!-- ============ MODAL: ELEGIR (temática, dificultad, anillo a robar) ============ -->
+  <div id="modal-pick" class="modal" hidden>
+    <div id="pick-card" class="modal-card pick-card">
+      <h2 id="pick-title"></h2>
+      <p id="pick-sub" class="modal-text"></p>
+      <div id="pick-options" class="pick-options"></div>
       <div class="modal-actions">
-        <button id="btn-theme-cancel" class="btn btn-ghost" type="button">Cancelar</button>
+        <button id="btn-pick-cancel" class="btn btn-ghost" type="button">Cancelar</button>
       </div>
     </div>
   </div>

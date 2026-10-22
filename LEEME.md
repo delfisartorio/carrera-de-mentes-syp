@@ -5,17 +5,27 @@ Doble clic en `index.html` (Chrome o Edge). No necesita internet ni servidor
 (solo la tipografía Fredoka viene de Google Fonts; sin internet usa una de sistema).
 
 ## Dinámica
-- La pista es **circular**: las fichas dan vueltas, no hay casilla final.
+- La pista es una **viborita en zigzag** (40 casillas) que vuelve a la Salida por la
+  columna de la izquierda: las fichas dan vueltas, no hay casilla final.
 - **Cada casilla es de una temática** (las temáticas salen del CSV).
-- Al caer en una casilla aparece una **pregunta al azar de esa temática**:
-  - **Correcta** → el equipo gana el **anillo de esa temática** y esa pregunta
-    **no vuelve a salir** en la partida.
-  - **Incorrecta** → no gana nada y la pregunta **puede volver a salir**.
-  - Si ya tenían ese anillo y responden bien, no suman otro pero **vuelven a tirar el dado**
-    (en el panel aparece "Vuelve a tirar"). Si responden mal, pasa el turno.
+- Al caer en una casilla eligen **Fácil o Difícil** y sale una pregunta de esa temática:
+  - **Difícil correcta** → ganan el **anillo de esa temática**.
+  - **Fácil correcta** → suman 1 de 3 (puntitos en la lista de equipos);
+    con **3 fáciles de la misma temática** ganan el anillo.
+  - **Siempre que responden bien siguen tirando** (en el panel aparece "Sigue tirando").
+    Si responden mal, pasa el turno.
+  - Las preguntas acertadas **no vuelven a salir**; las falladas sí.
+- **Robo de anillos:** si caen en la misma casilla que otro equipo y responden bien,
+  pueden robarle el anillo que quieran (de los que no tienen). El otro se queda sin él.
+- **Corral (cárcel):** quien cae ahí no responde y **pierde el próximo turno**
+  (su ficha se ve gris y en la lista dice "En el corral").
+- **Comodines:** cada equipo arranca con 2, que se usan dentro de la pregunta:
+  - **Eliminar opciones**: tacha opciones incorrectas y quedan 2 (no se puede en
+    Verdadero/Falso ni en preguntas sin opciones).
+  - **Cambiar pregunta**: sale otra de la misma temática y dificultad.
 - **Gana el primer equipo que junta un anillo de cada temática.** Con "Seguir jugando"
   los demás siguen compitiendo por el 2.º puesto, etc.
-- La **Salida** es comodín: si caen justo ahí, eligen de qué temática es la pregunta.
+- La **Salida**: si caen justo ahí, eligen de qué temática es la pregunta.
 - Si se agotan las preguntas de una temática, se vuelven a habilitar todas.
 
 ## Estructura
@@ -26,7 +36,7 @@ css/styles.css            ← estética retro: colores, tamaños, animaciones
 js/config.js              ← TODO lo configurable
 js/app.js                 ← lógica (no hace falta tocarlo)
 js/preguntas-ejemplo.js   ← copia del CSV de ejemplo (botón "Usar preguntas de ejemplo")
-preguntas/ejemplo.csv     ← banco de ejemplo: 5 temáticas × 6 preguntas
+preguntas/ejemplo.csv     ← banco de ejemplo: 5 temáticas × 9 preguntas (fáciles y difíciles)
 assets/
   avatars/                ← tus personajes (pollito.png, ...)
   tablero/fondo.jpg       ← fondo del tablero
@@ -41,10 +51,14 @@ Queda guardado en el navegador: no hay que cargarlo cada clase.
 
 **Formato** (Excel o Google Sheets → "Guardar como CSV"):
 
-| tematica | pregunta | respuesta | opciones |
-|---|---|---|---|
-| Historia | ¿En qué año llegó Colón a América? | 1492 | 1492\|1810\|1516\|1776 |
-| Ciencia | ¿Cuántos huesos tiene el cuerpo humano? | 206 | |
+| tematica | dificultad | pregunta | respuesta | opciones |
+|---|---|---|---|---|
+| Historia | facil | ¿En qué año llegó Colón a América? | 1492 | 1492\|1810\|1516\|1776 |
+| Ciencia | dificil | ¿Cuántos huesos tiene el cuerpo humano? | 206 | |
+| Ciencia | facil | El Sol es una estrella. | Verdadero | Verdadero\|Falso |
+
+- `dificultad`: `facil` o `dificil`. Si está vacía, la pregunta sirve para las dos.
+- **Verdadero/Falso**: poné `Verdadero|Falso` como opciones.
 
 - **Las temáticas del tablero = las que aparecen en la columna `tematica`**, en el orden
   en que aparecen por primera vez. Se usan hasta `MAX_THEMES` (6 por defecto).
@@ -52,19 +66,24 @@ Queda guardado en el navegador: no hay que cargarlo cada clase.
 - Conviene que cada temática tenga **varias preguntas** (al menos 6–10), porque las acertadas
   ya no se repiten.
 - Separador `;` o `,` (se detecta solo). Acentos OK.
-- Las columnas `respuesta` y `opciones` son **opcionales** y no se muestran en pantalla:
-  la pantalla de pregunta muestra solo la pregunta y los botones **Correcto** / **Incorrecto**.
-  (Sirven como ayuda para el moderador si mira el CSV.)
+- Las columnas `respuesta` y `opciones` son **opcionales**. Las opciones se muestran
+  como A/B/C/D; la respuesta no se muestra (la usa el comodín "Eliminar opciones",
+  así que tiene que coincidir con una de las opciones). El moderador decide con
+  **Correcto** / **Incorrecto**.
 - **Descargar plantilla** baja un CSV listo para completar.
 
 ## Configuración (`js/config.js`)
 
 | Opción | Qué hace |
 |---|---|
-| `COLUMNS`, `ROWS` | Tamaño de la vuelta. Casillas = 2×COLUMNS + 2×(ROWS−2). **7×5 = 20** (por defecto), 6×4 = 16, 8×5 = 22. |
+| `COLUMNS`, `LANES` | Tamaño de la viborita: LANES filas (par) de COLUMNS casillas. **9×4 = 40** (por defecto), 8×4 = 36, 10×4 = 44, 7×6 = 48. |
+| `JAIL_CELLS`, `JAIL_TURNS` | Cuántas casillas de corral hay y cuántos turnos se pierden. |
+| `JAIL_IMAGE` | Foto del corral (`assets/tablero/corral.jpg`). Si no está, se ve un corral dibujado. |
+| `CORRECT_KEEPS_TURN` | `true`: si responden bien siguen tirando. |
+| `EASY_FOR_RING` | Cuántas fáciles de una temática hacen falta para el anillo (3). |
+| `JOKERS` | Comodines iniciales de cada equipo: `{ eliminar: 1, cambiar: 1 }`. |
 | `MAX_THEMES` / `MIN_THEMES` | Cuántas temáticas del CSV se usan como máximo / mínimo. |
-| `START_IS_WILD` | `true`: la Salida es comodín (eligen temática). |
-| `EXTRA_TURN_ON_REPEAT` | `true`: acertar una temática que ya tienen da otro tiro. `false`: pasa el turno igual. |
+| `START_IS_WILD` | `true`: en la Salida eligen la temática. |
 | `THEMES` | Color de temáticas conocidas. Las que no estén reciben color de `RING_COLORS`. Mayúsculas y tildes no importan. |
 | `BOARD_AREA` | Zona del fondo donde va la pista (% de la imagen). Ajustar si cambiás el fondo. |
 | `STEP_MS` | Velocidad del saltito por casilla. |
@@ -83,8 +102,12 @@ nueva y se mantiene si se recarga.
   Si la imagen falta, aparece la inicial del nombre.
 
 ### 2. Fondo del tablero → `assets/tablero/fondo.jpg`
-- Ya está puesto. La pista se dibuja en la zona de arena (`BOARD_AREA`) y en el centro
-  aparece la leyenda "¡Juntá los N anillos!" con los colores de cada temática.
+- Ya está puesto. La pista se dibuja en la zona de arena (`BOARD_AREA`). La leyenda
+  "Juntá los N anillos" está en el panel de la derecha.
+
+### 2b. Foto del corral → `assets/tablero/corral.jpg`
+- Una foto de un corral (JPG, más o menos cuadrada). Mientras no esté, la casilla
+  muestra un corral de madera dibujado.
 
 ### 3. Anillo → `assets/anillos/` (opcional)
 - Por defecto se dibujan con CSS, del color de cada temática.
@@ -97,7 +120,8 @@ En `:root`: `--card` (pergamino), `--ink` (tinta), `--accent`, fondo `--bg-1`/`-
 ## Cómo se juega (moderador)
 1. Cargar el banco de preguntas, registrar equipos → **Empezar partida**.
 2. Tirar el dado físico → tocar el número (o tecla `1`–`6`) → **Mover** (o `Enter`).
-3. Leer la pregunta → **Correcto** / **Incorrecto**.
+3. Elegir **Fácil** o **Difícil**, leer la pregunta (si piden un comodín, tocarlo)
+   → **Correcto** / **Incorrecto**.
 4. Botones extra:
    - **Pregunta de esta casilla**: vuelve a sacar una pregunta donde está el equipo.
    - **+1 Anillo** / **+** en la lista: dar un anillo a mano (eligiendo temática).
