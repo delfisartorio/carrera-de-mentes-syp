@@ -645,26 +645,49 @@ kbd { background: var(--card); border: 2px solid var(--ink); border-radius: 4px;
   animation: toast-in .35s cubic-bezier(.3,1.5,.5,1);
   text-align: center; max-width: calc(100% - 32px);
 }
-/* ---------- Escena del corral: caen las rejas sobre el pollito ---------- */
-.jail-scene {
-  position: fixed; inset: 0; z-index: 150;
+
+/* ---------- Escenas a pantalla completa (corral, anillo) ---------- */
+.scene {
+  position: fixed; inset: 0; z-index: 150; overflow: hidden;
   display: grid; place-content: center; justify-items: center; gap: 22px;
   padding: 16px; cursor: pointer;
   background: rgba(15, 8, 4, .78);
   backdrop-filter: blur(4px);
-  animation: jail-fade .25s ease-out;
+  animation: scene-fade .25s ease-out;
 }
-.jail-scene.leaving { opacity: 0; transition: opacity .35s; }
-.jail-stage { position: relative; width: min(280px, 70vw); aspect-ratio: 14 / 15; }
-.jail-scene.slammed .jail-stage { animation: jail-shake .4s; }
-.jail-avatar {
+.scene.leaving { opacity: 0; transition: opacity .35s; }
+.scene-stage { position: relative; width: min(280px, 70vw); aspect-ratio: 14 / 15; }
+.scene-avatar {
   position: absolute; inset: 8% 10% 4%;
   border-radius: 50%; background: var(--team, var(--accent));
   border: 5px solid var(--ink); box-shadow: 0 8px 0 var(--ink);
   padding: 8%;
-  animation: jail-hop .5s ease-in-out infinite alternate;
   transition: filter .5s;
 }
+.scene-sign {
+  position: relative;
+  background: var(--card); color: var(--ink); text-align: center;
+  border: 4px solid var(--ink); border-radius: 18px;
+  box-shadow: 0 8px 0 var(--ink);
+  padding: .5em 1.4em; max-width: 100%;
+  animation: scene-stamp .4s cubic-bezier(.3,1.6,.5,1) 1.3s both;
+}
+.scene-sign strong {
+  display: block; font-size: clamp(2rem, 6vw, 3.2rem); line-height: 1.1;
+  text-shadow: 2px 2px 0 rgba(0,0,0,.15);
+}
+.scene-sign span { font-size: clamp(1.1rem, 3vw, 1.5rem); font-weight: 700; }
+@keyframes scene-fade { from { opacity: 0; } }
+@keyframes scene-stamp { from { transform: scale(2.4) rotate(-12deg); opacity: 0; } to { transform: rotate(-3deg); } }
+@keyframes scene-hop { to { transform: translateY(-6%) rotate(4deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .scene *, .scene.slammed *, .scene.landed * { animation: none !important; }
+}
+
+/* Corral: caen las rejas sobre el pollito */
+.jail-scene .scene-sign strong { color: var(--danger); }
+.jail-avatar { animation: scene-hop .5s ease-in-out infinite alternate; }
+.jail-scene.slammed .scene-stage { animation: jail-shake .4s; }
 .jail-scene.slammed .jail-avatar {
   animation: jail-shiver .12s linear infinite;
   filter: grayscale(.7) brightness(.85);
@@ -688,30 +711,66 @@ kbd { background: var(--card); border: 2px solid var(--ink); border-radius: 4px;
 }
 .jail-cross.top { top: 6%; }
 .jail-cross.bottom { bottom: 6%; animation-delay: 1.02s; }
-.jail-sign {
-  background: var(--card); color: var(--ink); text-align: center;
-  border: 4px solid var(--ink); border-radius: 18px;
-  box-shadow: 0 8px 0 var(--ink);
-  padding: .5em 1.4em; max-width: 100%;
-  animation: jail-stamp .4s cubic-bezier(.3,1.6,.5,1) 1.3s both;
-}
-.jail-sign strong {
-  display: block; font-size: clamp(2rem, 6vw, 3.2rem); line-height: 1.1; color: var(--danger);
-  text-shadow: 2px 2px 0 rgba(0,0,0,.15);
-}
-.jail-sign span { font-size: clamp(1.1rem, 3vw, 1.5rem); font-weight: 700; }
-@keyframes jail-fade { from { opacity: 0; } }
 @keyframes jail-drop { from { transform: translateY(-110vh); } }
 @keyframes jail-bounce { 40% { transform: translateY(-7%); } }
-@keyframes jail-hop { to { transform: translateY(-6%) rotate(4deg); } }
 @keyframes jail-shiver { 50% { transform: translateX(2px) rotate(-2deg); } }
 @keyframes jail-shake {
   20% { transform: translate(-8px, 6px); } 40% { transform: translate(7px, -4px); }
   60% { transform: translate(-5px, 3px); } 80% { transform: translate(3px, -2px); }
 }
-@keyframes jail-stamp { from { transform: scale(2.4) rotate(-12deg); opacity: 0; } to { transform: rotate(-3deg); } }
-@media (prefers-reduced-motion: reduce) {
-  .jail-scene *, .jail-scene.slammed * { animation: none !important; }
+
+/* Anillo: cae girando y se le encastra al pollito como un aro */
+.ring-scene { --rc: var(--accent); }
+.ring-scene .scene-sign strong { color: color-mix(in srgb, var(--rc) 80%, black); }
+.ring-rays {
+  position: absolute; left: 50%; top: 50%;
+  width: 180vmax; aspect-ratio: 1; margin: -90vmax 0 0 -90vmax;
+  background: repeating-conic-gradient(color-mix(in srgb, var(--rc) 40%, transparent) 0 10deg, transparent 10deg 20deg);
+  -webkit-mask: radial-gradient(circle, #000 0 8%, transparent 32%);
+          mask: radial-gradient(circle, #000 0 8%, transparent 32%);
+  opacity: 0;
+  animation: rays-in .6s ease-out .9s forwards, rays-spin 14s linear infinite;
+}
+/* El aro se dibuja dos veces: la mitad de atrás pasa detrás del pollito
+   y la de adelante por delante */
+.prize-ring {
+  position: absolute; left: -10%; right: -10%; top: 44%; height: 28%;
+  border-radius: 50%;
+  /* agujero transparente al medio: se ve el pollito a través del aro */
+  background: radial-gradient(closest-side, transparent 0 64%, var(--ink) 64% 70%,
+              color-mix(in srgb, var(--rc) 45%, white) 70% 80%, var(--rc) 92%);
+  border: 4px solid var(--ink);
+  box-shadow: 0 10px 0 color-mix(in srgb, var(--rc) 70%, black), 0 14px 0 var(--ink);
+  animation: ring-fall .75s cubic-bezier(.45,0,.8,.4) .25s both,
+             ring-settle .6s ease-out 1s;
+}
+.prize-ring.back { clip-path: inset(-50% 0 50% 0); }
+.prize-ring.front { clip-path: inset(50% 0 -50% 0); }
+.prize-ring.ring-img {
+  background: center / contain no-repeat; border: 0; box-shadow: none;
+}
+.ring-sparks { position: absolute; left: 50%; top: 58%; }
+.ring-sparks i {
+  position: absolute; left: -7px; top: -7px; width: 14px; height: 14px;
+  background: #ffe27a; border: 2px solid var(--ink);
+  clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%);
+  opacity: 0;
+}
+.ring-scene.landed .ring-sparks i { animation: spark .8s ease-out forwards; }
+@keyframes ring-fall {
+  from { transform: translateY(-150vh) rotate(-30deg) scale(1.3); }
+  70% { transform: translateY(-10%) rotate(12deg); }
+}
+@keyframes ring-settle {
+  25% { transform: translateY(8%) rotate(-6deg); }
+  50% { transform: translateY(-4%) rotate(4deg); }
+  75% { transform: rotate(-2deg); }
+}
+@keyframes rays-in { from { opacity: 0; transform: scale(.4); } to { opacity: 1; } }
+@keyframes rays-spin { to { rotate: 360deg; } }
+@keyframes spark {
+  0% { opacity: 1; transform: rotate(var(--a)) translateY(0) scale(.4); }
+  100% { opacity: 0; transform: rotate(var(--a)) translateY(min(-170px, -40vw)) scale(1.3); }
 }
 
 @keyframes toast-in { from { transform: translate(-50%, -30px) scale(.8); opacity: 0; } }

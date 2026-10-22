@@ -756,34 +756,15 @@
     layoutTokens(true);
   }
 
-  // Escena del corral: el pollito en grande, caen las rejas encima y
-  // aparece el cartel. Se cierra sola o con un clic.
-  function jailScene(team) {
+  // Escena a pantalla completa (corral, anillo): se cierra sola o con un clic.
+  // Devuelve una promesa que se cumple al cerrarse.
+  function playScene(cls, team, html, ms = 3600) {
     return new Promise(resolve => {
-      const BARS = 7;
-      const lost = team.jail > 1 ? `${team.jail} turnos` : 'el próximo turno';
       const el = document.createElement('div');
-      el.className = 'jail-scene';
+      el.className = `scene ${cls}`;
       el.style.setProperty('--team', team.color);
-      el.innerHTML = `
-        <div class="jail-stage">
-          <div class="jail-avatar">${avatarHTML(team.avatar)}</div>
-          <div class="jail-gate">
-            ${Array.from({ length: BARS }, (_, i) => `<i class="jail-bar" style="--i:${i}"></i>`).join('')}
-            <b class="jail-cross top"></b><b class="jail-cross bottom"></b>
-          </div>
-        </div>
-        <div class="jail-sign">
-          <strong>¡Al corral!</strong>
-          <span>${esc(team.name)} pierde ${lost}</span>
-        </div>`;
+      el.innerHTML = html;
       document.body.appendChild(el);
-
-      // Un golpe seco por cada reja que cae y el lamento al final
-      for (let i = 0; i < BARS; i++) setTimeout(() => blip(110 - i * 6, 0.12, 'square'), 380 + i * 70);
-      setTimeout(() => { blip(70, 0.35, 'square'); el.classList.add('slammed'); }, 380 + BARS * 70 + 120);
-      setTimeout(sadTone, 1500);
-
       let closed = false;
       const close = () => {
         if (closed) return;
@@ -792,8 +773,62 @@
         setTimeout(() => { el.remove(); resolve(); }, 350);
       };
       el.addEventListener('click', close);
-      setTimeout(close, 3600);
+      setTimeout(close, ms);
     });
+  }
+  const sceneAvatar = (team, cls) => `<div class="scene-avatar ${cls}">${avatarHTML(team.avatar)}</div>`;
+
+  // Corral: el pollito en grande, caen las rejas encima y aparece el cartel
+  function jailScene(team) {
+    const BARS = 7;
+    const lost = team.jail > 1 ? `${team.jail} turnos` : 'el próximo turno';
+    const scene = playScene('jail-scene', team, `
+      <div class="scene-stage">
+        ${sceneAvatar(team, 'jail-avatar')}
+        <div class="jail-gate">
+          ${Array.from({ length: BARS }, (_, i) => `<i class="jail-bar" style="--i:${i}"></i>`).join('')}
+          <b class="jail-cross top"></b><b class="jail-cross bottom"></b>
+        </div>
+      </div>
+      <div class="scene-sign">
+        <strong>¡Al corral!</strong>
+        <span>${esc(team.name)} pierde ${lost}</span>
+      </div>`);
+    // Un golpe seco por cada reja que cae y el lamento al final
+    for (let i = 0; i < BARS; i++) setTimeout(() => blip(110 - i * 6, 0.12, 'square'), 380 + i * 70);
+    setTimeout(() => { blip(70, 0.35, 'square'); $('.jail-scene')?.classList.add('slammed'); }, 380 + BARS * 70 + 120);
+    setTimeout(sadTone, 1500);
+    return scene;
+  }
+
+  // Anillo ganado: rayos del color de la temática, el anillo cae girando
+  // y se le encastra al pollito como un aro, chispas y cartel.
+  // `from` = equipo al que se lo robó (opcional).
+  function ringScene(team, theme, from = null) {
+    const t = themeInfo(theme);
+    const n = team.rings.length, total = state.themes.length;
+    const ring = part => C.RING_IMAGE
+      ? `<div class="prize-ring ${part} ring-img" style="background-image:url('${C.RING_IMAGE}')"></div>`
+      : `<div class="prize-ring ${part}"></div>`;
+    const sub = from ? `${esc(team.name)} se lo robó a ${esc(from.name)}` : `${esc(team.name)} · ${n} de ${total} anillos`;
+    const scene = playScene('ring-scene', team, `
+      <div class="ring-rays"></div>
+      <div class="scene-stage">
+        ${ring('back')}
+        ${sceneAvatar(team, 'ring-avatar')}
+        ${ring('front')}
+        <div class="ring-sparks">${Array.from({ length: 12 }, (_, i) => `<i style="--a:${i * 30}deg"></i>`).join('')}</div>
+      </div>
+      <div class="scene-sign">
+        <strong>¡Anillo de ${esc(t.name)}!</strong>
+        <span>${sub}</span>
+      </div>`);
+    $('.ring-scene').style.setProperty('--rc', t.color);
+    // Silbido mientras cae, "clinc" al encastrar y fanfarria
+    [520, 600, 690, 790].forEach((f, i) => setTimeout(() => blip(f, 0.07, 'sine'), 250 + i * 110));
+    setTimeout(() => { blip(1568, 0.25, 'triangle'); $('.ring-scene')?.classList.add('landed'); }, 1000);
+    setTimeout(fanfare, 1250);
+    return scene;
   }
 
   // Qué pasa al caer en una casilla
@@ -890,8 +925,7 @@
     state.winners = state.winners.filter(id => id !== from.id);
     renderRings(from, false);
     addRing(team, ring);
-    toast(`¡${team.name} le robó el anillo de ${themeInfo(ring).name} a ${from.name}!`, 2600);
-    await sleep(1000);
+    await ringScene(team, ring, from);
   }
 
   function checkWin(team) {
@@ -948,8 +982,7 @@
       await sleep(400);
     } else if (level === 'dificil' || k + 1 >= C.EASY_FOR_RING) {
       addRing(team, theme);
-      toast(`¡Anillo de ${info.name} para ${team.name}!`);
-      await sleep(1000);
+      await ringScene(team, theme);
     } else {
       team.easy[norm(theme)] = k + 1;
       [660, 880].forEach((f, i) => setTimeout(() => blip(f, 0.1, 'sine'), i * 90));
@@ -1091,6 +1124,7 @@
     if (!theme) return;
     pushHistory();
     addRing(team, theme);
+    await ringScene(team, theme);
     checkWin(team);
   }
 
