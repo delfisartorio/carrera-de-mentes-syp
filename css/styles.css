@@ -266,46 +266,51 @@ body {
   text-shadow: 1px 1px 0 var(--ink), -1px -1px 0 var(--ink), 1px -1px 0 var(--ink), -1px 1px 0 var(--ink);
   max-width: 100%; padding: 0 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
+/* ---------- Corral (cárcel) ----------
+   Arriba la foto (CONFIG.JAIL_IMAGE); si no existe, se ve el corral dibujado. */
+.cell-jail {
+  justify-content: flex-end;
+  background:
+    var(--jail-img, none) center / cover no-repeat,
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Crect width='100' height='100' fill='%23bfe3f2'/%3E%3Cpath d='M0 58 Q30 50 55 56 T100 54 V100 H0Z' fill='%237cb342'/%3E%3Cellipse cx='50' cy='86' rx='38' ry='9' fill='%23b9874f'/%3E%3Cg fill='%238d5a2b' stroke='%233b2412' stroke-width='2'%3E%3Crect x='3' y='38' width='94' height='8' rx='2'/%3E%3Crect x='3' y='58' width='94' height='8' rx='2'/%3E%3Cpath d='M10 30 l5 -6 l5 6 V84 H10Z'/%3E%3Cpath d='M35 30 l5 -6 l5 6 V84 H35Z'/%3E%3Cpath d='M60 30 l5 -6 l5 6 V84 H60Z'/%3E%3Cpath d='M85 30 l5 -6 l5 6 V84 H85Z'/%3E%3C/g%3E%3C/svg%3E") center / cover no-repeat,
+    #c8a26b;
+}
+.cell-jail .cell-label {
+  font-size: calc(var(--cell-min, 70px) * .16);
+  background: var(--card); color: var(--ink);
+  padding: 0 6px; border-radius: 999px; border: 1px solid var(--ink);
+  margin-bottom: 4%;
+}
 .cell-start .cell-label { font-size: calc(var(--cell-min, 70px) * .16); line-height: 1.1; }
 .cell-start .cell-sub { font-size: calc(var(--cell-min, 70px) * .12); font-weight: 600; margin-top: 4px; }
 
-/* Etiqueta de ganador en la lista de equipos */
-.winner-tag {
+/* Etiquetas en la lista de equipos */
+.winner-tag, .jail-tag {
   font-size: .7rem; background: var(--accent); border: 2px solid var(--ink);
   border-radius: 999px; padding: 0 .5em; vertical-align: middle;
 }
+.jail-tag { background: #b9874f; color: #fff; }
+.joker-badge {
+  display: inline-block; font-size: .68rem; font-weight: 700;
+  border: 2px solid var(--ink); border-radius: 6px; padding: 0 .4em; margin-left: 3px;
+  background: var(--accent); color: var(--ink); opacity: 1; vertical-align: 1px;
+}
+.joker-badge.used { background: transparent; opacity: .45; text-decoration: line-through; }
 
-/* Centro del tablero: leyenda de anillos a juntar */
-.board-center {
-  margin: 6%;
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  gap: calc(var(--cell-min, 70px) * .12);
-  background: color-mix(in srgb, var(--card) 88%, transparent);
-  border: 3px solid var(--ink); border-radius: 18px;
-  box-shadow: 0 5px 0 var(--ink);
-  padding: 2% 3%;
-  text-align: center;
-}
-.center-title {
-  font-weight: 700; text-transform: uppercase; letter-spacing: .04em;
-  font-size: calc(var(--cell-min, 70px) * .26);
-}
-.center-themes { display: flex; flex-wrap: wrap; justify-content: center; gap: calc(var(--cell-min, 70px) * .1); }
-.center-theme {
-  display: inline-flex; align-items: center; gap: .35em;
-  font-weight: 700; font-size: calc(var(--cell-min, 70px) * .19);
-  background: #fff; border: 2px solid var(--ink); border-radius: 999px;
-  padding: .15em .7em .15em .3em; box-shadow: 0 3px 0 var(--ink);
-}
-.center-ring {
-  width: 1.5em; height: .75em; border-radius: 50%;
-  background: var(--theme); border: 2px solid var(--ink);
-  box-shadow: inset 0 0 0 .2em color-mix(in srgb, var(--theme) 50%, white);
-}
+/* Leyenda de anillos a juntar (panel) */
+.ring-legend .theme-chips { gap: 5px; }
+.ring-legend .theme-chip { font-size: .8rem; }
 
 /* Anillos que faltan (panel / victoria) */
 .theme-chip.missing { background: #d8d0bc; color: #8a7f6a; text-shadow: none; opacity: .65; }
-.theme-options .btn.owned { opacity: .55; }
+.theme-chip.has-easy { opacity: 1; border-color: var(--theme); }
+.pips { display: inline-flex; gap: 2px; }
+.pips i {
+  width: .55em; height: .55em; border-radius: 50%;
+  border: 1px solid var(--ink); background: #fff;
+}
+.pips i.on { background: var(--theme); }
+.pick-options .btn.owned { opacity: .55; }
 .q-team em { font-weight: 400; opacity: .7; }
 
 .cell-num { line-height: 1; opacity: .85; }
@@ -353,9 +358,9 @@ body {
 
 .token {
    --tok: calc(var(--cell, 70px) * .62);
-   --gap: calc(var(--tok) * .14);
+   --gap: calc(var(--tok) * .2);
    --ring-h: calc(var(--tok) * .36);
-   --thick: calc(var(--tok) * .11);
+   --thick: calc(var(--tok) * .1);
    --vis: 0;
    --has: 0;
    position: absolute; left: 0; top: 0; width: 0; height: 0;
@@ -397,7 +402,9 @@ body {
   border-radius: 50%;
   background: radial-gradient(ellipse at 50% 35%, color-mix(in srgb, var(--rc) 45%, white) 0 25%, var(--rc) 70%);
   border: 2px solid var(--ink);
-  box-shadow: 0 var(--thick) 0 var(--ink);
+  /* canto del anillo del mismo color (más oscuro) para que se vea en la pila */
+  box-shadow: 0 var(--thick) 0 color-mix(in srgb, var(--rc) 70%, black),
+              0 calc(var(--thick) + 2px) 0 var(--ink);
 }
 .ring::after {
   content: '';
@@ -440,6 +447,7 @@ body {
 }
 
 .token.is-turn .token-avatar { animation: turn-pulse 1.3s ease-in-out infinite; }
+.token.in-jail .token-avatar { filter: grayscale(.85) drop-shadow(2px 2px 0 var(--ink)); }
 @keyframes turn-pulse {
   0%, 100% { outline: 0 solid transparent; outline-offset: 2px; }
   50% { outline: 4px solid var(--accent); outline-offset: 3px; }
@@ -548,14 +556,61 @@ kbd { background: var(--card); border: 2px solid var(--ink); border-radius: 4px;
   border-top: 16px solid var(--theme, var(--ink));
 }
 .question-card { padding: 40px 32px 32px; }
+.q-meta {
+  margin: 0; font-weight: 700; font-size: .9rem; text-transform: uppercase; letter-spacing: .08em;
+  color: color-mix(in srgb, var(--theme, var(--ink)) 70%, black);
+}
 .q-text {
   font-size: clamp(1.8rem, 3.6vw, 3rem) !important;
   line-height: 1.2;
-  margin: .3em 0 .8em !important;
+  margin: .3em 0 .6em !important;
 }
-/* ---------- Selector de temática ---------- */
-.theme-options { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin-top: 10px; }
-.theme-options .btn { background: var(--theme); color: #fff; text-shadow: 1px 1px 0 rgba(0,0,0,.4); }
+.q-options {
+  list-style: none; margin: 0 0 14px; padding: 0;
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;
+  text-align: left;
+}
+@media (max-width: 560px) { .q-options { grid-template-columns: 1fr; } }
+.q-options li {
+  display: flex; align-items: center; gap: .6em;
+  font-size: clamp(1.1rem, 2vw, 1.6rem); font-weight: 600;
+  background: #fff; border: 3px solid var(--ink); border-radius: 14px;
+  padding: .4em .7em; box-shadow: 0 3px 0 var(--ink);
+  transition: opacity .3s;
+}
+.q-options b {
+  flex: 0 0 auto; display: grid; place-items: center;
+  width: 1.6em; height: 1.6em; border-radius: 50%;
+  background: var(--theme, var(--accent)); color: #fff; border: 2px solid var(--ink);
+  font-size: .8em;
+}
+.q-options li.removed { opacity: .2; text-decoration: line-through; }
+/* Opciones clickeables: el li queda como contenedor y el botón ocupa todo */
+.q-options li:has(.q-opt) { padding: 0; background: none; border: 0; box-shadow: none; }
+.q-opt {
+  display: flex; align-items: center; gap: .6em; width: 100%; height: 100%;
+  font: inherit; color: inherit; text-align: left; cursor: pointer;
+  background: #fff; border: 3px solid var(--ink); border-radius: 14px;
+  padding: .4em .7em; box-shadow: 0 3px 0 var(--ink);
+  transition: transform .1s, box-shadow .1s, background .2s;
+}
+.q-opt:not(:disabled):hover { transform: translateY(-2px); box-shadow: 0 5px 0 var(--ink); }
+.q-opt:not(:disabled):active { transform: translateY(2px); box-shadow: 0 1px 0 var(--ink); }
+.q-opt:disabled { cursor: default; }
+.q-opt.right { background: var(--ok); color: #fff; }
+.q-opt.wrong { background: var(--danger); color: #fff; }
+.q-jokers { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+.q-jokers .btn { font-size: .85rem; padding: .4em .9em; }
+
+/* ---------- Ventana de elección (temática, dificultad, robo) ---------- */
+.pick-card { border-top: 12px solid var(--theme, var(--ink)); }
+.pick-options { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-top: 10px; }
+.pick-options .btn {
+  flex-direction: column; gap: 0; line-height: 1.15;
+  background: var(--theme); color: #fff; text-shadow: 1px 1px 0 rgba(0,0,0,.4);
+}
+.pick-options .btn small { font-size: .7em; font-weight: 600; opacity: .95; }
+.modal-text small { font-size: .8em; opacity: .85; }
 
 .victory-avatar {
   width: 150px; height: 150px; margin: 0 auto;
@@ -590,6 +645,134 @@ kbd { background: var(--card); border: 2px solid var(--ink); border-radius: 4px;
   animation: toast-in .35s cubic-bezier(.3,1.5,.5,1);
   text-align: center; max-width: calc(100% - 32px);
 }
+
+/* ---------- Escenas a pantalla completa (corral, anillo) ---------- */
+.scene {
+  position: fixed; inset: 0; z-index: 150; overflow: hidden;
+  display: grid; place-content: center; justify-items: center; gap: 22px;
+  padding: 16px; cursor: pointer;
+  background: rgba(15, 8, 4, .78);
+  backdrop-filter: blur(4px);
+  animation: scene-fade .25s ease-out;
+}
+.scene.leaving { opacity: 0; transition: opacity .35s; }
+.scene-stage { position: relative; width: min(280px, 70vw); aspect-ratio: 14 / 15; }
+.scene-avatar {
+  position: absolute; inset: 8% 10% 4%;
+  border-radius: 50%; background: var(--team, var(--accent));
+  border: 5px solid var(--ink); box-shadow: 0 8px 0 var(--ink);
+  padding: 8%;
+  transition: filter .5s;
+}
+.scene-sign {
+  position: relative;
+  background: var(--card); color: var(--ink); text-align: center;
+  border: 4px solid var(--ink); border-radius: 18px;
+  box-shadow: 0 8px 0 var(--ink);
+  padding: .5em 1.4em; max-width: 100%;
+  animation: scene-stamp .4s cubic-bezier(.3,1.6,.5,1) 1.3s both;
+}
+.scene-sign strong {
+  display: block; font-size: clamp(2rem, 6vw, 3.2rem); line-height: 1.1;
+  text-shadow: 2px 2px 0 rgba(0,0,0,.15);
+}
+.scene-sign span { font-size: clamp(1.1rem, 3vw, 1.5rem); font-weight: 700; }
+@keyframes scene-fade { from { opacity: 0; } }
+@keyframes scene-stamp { from { transform: scale(2.4) rotate(-12deg); opacity: 0; } to { transform: rotate(-3deg); } }
+@keyframes scene-hop { to { transform: translateY(-6%) rotate(4deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .scene *, .scene.slammed *, .scene.landed * { animation: none !important; }
+}
+
+/* Corral: caen las rejas sobre el pollito */
+.jail-scene .scene-sign strong { color: var(--danger); }
+.jail-avatar { animation: scene-hop .5s ease-in-out infinite alternate; }
+.jail-scene.slammed .scene-stage { animation: jail-shake .4s; }
+.jail-scene.slammed .jail-avatar {
+  animation: jail-shiver .12s linear infinite;
+  filter: grayscale(.7) brightness(.85);
+}
+.jail-gate { position: absolute; inset: 0; display: flex; justify-content: space-evenly; }
+.jail-bar, .jail-cross {
+  background: linear-gradient(90deg, #4b4f55, #c9ced4 40%, #7c828a 70%, #3c4046);
+  border: 3px solid var(--ink);
+}
+.jail-bar {
+  width: 9%; height: 100%; border-radius: 8px;
+  box-shadow: 4px 0 0 rgba(0,0,0,.35);
+  animation: jail-drop .45s cubic-bezier(.5,0,.75,0) calc(.3s + var(--i) * 70ms) both,
+             jail-bounce .3s ease-out calc(.75s + var(--i) * 70ms);
+}
+.jail-cross {
+  position: absolute; left: -4%; right: -4%; height: 9%; border-radius: 8px;
+  background: linear-gradient(180deg, #4b4f55, #c9ced4 40%, #7c828a 70%, #3c4046);
+  box-shadow: 0 5px 0 rgba(0,0,0,.35);
+  animation: jail-drop .4s cubic-bezier(.5,0,.75,0) .95s both;
+}
+.jail-cross.top { top: 6%; }
+.jail-cross.bottom { bottom: 6%; animation-delay: 1.02s; }
+@keyframes jail-drop { from { transform: translateY(-110vh); } }
+@keyframes jail-bounce { 40% { transform: translateY(-7%); } }
+@keyframes jail-shiver { 50% { transform: translateX(2px) rotate(-2deg); } }
+@keyframes jail-shake {
+  20% { transform: translate(-8px, 6px); } 40% { transform: translate(7px, -4px); }
+  60% { transform: translate(-5px, 3px); } 80% { transform: translate(3px, -2px); }
+}
+
+/* Anillo: cae girando y se le encastra al pollito como un aro */
+.ring-scene { --rc: var(--accent); }
+.ring-scene .scene-sign strong { color: color-mix(in srgb, var(--rc) 80%, black); }
+.ring-rays {
+  position: absolute; left: 50%; top: 50%;
+  width: 180vmax; aspect-ratio: 1; margin: -90vmax 0 0 -90vmax;
+  background: repeating-conic-gradient(color-mix(in srgb, var(--rc) 40%, transparent) 0 10deg, transparent 10deg 20deg);
+  -webkit-mask: radial-gradient(circle, #000 0 8%, transparent 32%);
+          mask: radial-gradient(circle, #000 0 8%, transparent 32%);
+  opacity: 0;
+  animation: rays-in .6s ease-out .9s forwards, rays-spin 14s linear infinite;
+}
+/* El aro se dibuja dos veces: la mitad de atrás pasa detrás del pollito
+   y la de adelante por delante */
+.prize-ring {
+  position: absolute; left: -10%; right: -10%; top: 44%; height: 28%;
+  border-radius: 50%;
+  /* agujero transparente al medio: se ve el pollito a través del aro */
+  background: radial-gradient(closest-side, transparent 0 64%, var(--ink) 64% 70%,
+              color-mix(in srgb, var(--rc) 45%, white) 70% 80%, var(--rc) 92%);
+  border: 4px solid var(--ink);
+  box-shadow: 0 10px 0 color-mix(in srgb, var(--rc) 70%, black), 0 14px 0 var(--ink);
+  animation: ring-fall .75s cubic-bezier(.45,0,.8,.4) .25s both,
+             ring-settle .6s ease-out 1s;
+}
+.prize-ring.back { clip-path: inset(-50% 0 50% 0); }
+.prize-ring.front { clip-path: inset(50% 0 -50% 0); }
+.prize-ring.ring-img {
+  background: center / contain no-repeat; border: 0; box-shadow: none;
+}
+.ring-sparks { position: absolute; left: 50%; top: 58%; }
+.ring-sparks i {
+  position: absolute; left: -7px; top: -7px; width: 14px; height: 14px;
+  background: #ffe27a; border: 2px solid var(--ink);
+  clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%);
+  opacity: 0;
+}
+.ring-scene.landed .ring-sparks i { animation: spark .8s ease-out forwards; }
+@keyframes ring-fall {
+  from { transform: translateY(-150vh) rotate(-30deg) scale(1.3); }
+  70% { transform: translateY(-10%) rotate(12deg); }
+}
+@keyframes ring-settle {
+  25% { transform: translateY(8%) rotate(-6deg); }
+  50% { transform: translateY(-4%) rotate(4deg); }
+  75% { transform: rotate(-2deg); }
+}
+@keyframes rays-in { from { opacity: 0; transform: scale(.4); } to { opacity: 1; } }
+@keyframes rays-spin { to { rotate: 360deg; } }
+@keyframes spark {
+  0% { opacity: 1; transform: rotate(var(--a)) translateY(0) scale(.4); }
+  100% { opacity: 0; transform: rotate(var(--a)) translateY(min(-170px, -40vw)) scale(1.3); }
+}
+
 @keyframes toast-in { from { transform: translate(-50%, -30px) scale(.8); opacity: 0; } }
 @keyframes pop-in { from { transform: scale(.85); opacity: 0; } }
 

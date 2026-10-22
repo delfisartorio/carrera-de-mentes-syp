@@ -4,24 +4,40 @@
    personajes, tablero, temáticas y colores.
    ========================================================= */
 const CONFIG = {
-  // ---- Tablero (pista circular) ----
-  // Las casillas forman una vuelta alrededor del borde de una grilla
-  // COLUMNS × ROWS. Total de casillas = 2×COLUMNS + 2×(ROWS−2).
-  //   7 × 5 → 20 casillas    8 × 5 → 22    6 × 4 → 16    9 × 5 → 24
-  COLUMNS: 7,
-  ROWS: 5,
+  // ---- Tablero (viborita) ----
+  // La pista va en zigzag: LANES filas de COLUMNS casillas unidas por
+  // codos, y vuelve a la Salida por la columna de la izquierda.
+  // LANES tiene que ser par (2, 4 o 6).
+  //   9 col × 4 filas → 40 casillas    8 × 4 → 36    10 × 4 → 44    7 × 6 → 48
+  COLUMNS: 9,
+  LANES: 4,
   BOARD_BACKGROUND: 'assets/tablero/fondo.jpg', // null = sin imagen
 
   // Zona libre del fondo donde se dibuja la pista, en % del alto/ancho
   // de la imagen. Si cambiás de fondo, ajustá estos 4 números.
-  BOARD_AREA: { top: 20, right: 20, bottom: 14, left: 20 },
+  BOARD_AREA: { top: 21, right: 18, bottom: 12, left: 18 },
 
-  // La casilla 0 (Salida) es comodín: si caen justo ahí, eligen la temática.
+  // La casilla 0 (Salida): si caen justo ahí, eligen la temática.
   START_IS_WILD: true,
 
-  // Si caen en una temática cuyo anillo ya tienen y responden bien,
-  // no ganan otro anillo pero vuelven a tirar el dado.
-  EXTRA_TURN_ON_REPEAT: true,
+  // ---- Corral (cárcel) ----
+  // Casillas de corral repartidas por la pista. Quien cae ahí no responde
+  // nada y pierde JAIL_TURNS turno(s).
+  JAIL_CELLS: 1,
+  JAIL_TURNS: 1,
+  // Foto de la casilla. Si no existe, se dibuja un corral de madera.
+  JAIL_IMAGE: 'assets/tablero/corral.jpg',
+
+  // ---- Reglas ----
+  // Si responden bien siguen tirando el dado (hasta que fallen).
+  CORRECT_KEEPS_TURN: true,
+  // Pregunta difícil bien respondida = anillo directo.
+  // Preguntas fáciles: hacen falta EASY_FOR_RING de la misma temática.
+  EASY_FOR_RING: 3,
+  // Comodines con los que arranca cada equipo (se usan dentro de la pregunta).
+  //   eliminar: saca opciones incorrectas (no sirve en Verdadero/Falso)
+  //   cambiar:  cambia la pregunta por otra de la misma temática y dificultad
+  JOKERS: { eliminar: 1, cambiar: 1 },
 
   // ---- Temáticas ----
   // Salen del CSV (columna "tematica"). El tablero usa las primeras
@@ -51,7 +67,7 @@ const CONFIG = {
 
   // ---- Equipos ----
   MIN_TEAMS: 2,
-  STORAGE_KEY: 'carreraDeMentes.partida.v3',
+  STORAGE_KEY: 'carreraDeMentes.partida.v4',
   BANK_STORAGE_KEY: 'carreraDeMentes.banco.v1',
 
   // ---- Personajes / fichas ----
