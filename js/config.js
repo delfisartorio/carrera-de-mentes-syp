@@ -11,7 +11,7 @@ const CONFIG = {
   //   9 col × 4 filas → 40 casillas    8 × 4 → 36    10 × 4 → 44    7 × 6 → 48
   COLUMNS: 9,
   LANES: 4,
-  BOARD_BACKGROUND: 'assets/tablero/fondo.jpg', // null = sin imagen
+  BOARD_BACKGROUND: 'assets/tablero/fondo.jpg?v=2', // null = sin imagen
 
   // Zona libre del fondo donde se dibuja la pista, en % del alto/ancho
   // de la imagen. Si cambiás de fondo, ajustá estos 4 números.
@@ -23,13 +23,13 @@ const CONFIG = {
   // ---- Corral (cárcel) ----
   // Casillas de corral repartidas por la pista. Quien cae ahí no responde
   // nada y pierde JAIL_TURNS turno(s).
-  JAIL_CELLS: 1,
+  JAIL_CELLS: 3,
   JAIL_TURNS: 1,
   // Foto de la casilla. Si no existe, se dibuja un corral de madera.
   JAIL_IMAGE: 'assets/tablero/corral.jpg',
 
   // ---- Reglas ----
-  // Si responden bien siguen tirando el dado (hasta que fallen).
+  // Si responden bien siguen tirando el dado, hasta que fallen o ganen un anillo.
   CORRECT_KEEPS_TURN: true,
   // Pregunta difícil bien respondida = anillo directo.
   // Preguntas fáciles: hacen falta EASY_FOR_RING de la misma temática.
@@ -38,6 +38,8 @@ const CONFIG = {
   //   eliminar: saca opciones incorrectas (no sirve en Verdadero/Falso)
   //   cambiar:  cambia la pregunta por otra de la misma temática y dificultad
   JOKERS: { eliminar: 1, cambiar: 1 },
+  // Carpeta de las imágenes de las preguntas (columna id_imagen del CSV).
+  QUESTION_IMAGES: 'assets/imagenes/',
 
   // ---- Temáticas ----
   // Salen del CSV (columna "tematica"). El tablero usa las primeras

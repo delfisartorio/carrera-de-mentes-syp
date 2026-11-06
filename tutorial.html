@@ -1,0 +1,518 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Polli-Run · Cómo se juega</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+  <!-- Misma estética que el juego: se reutilizan sus colores, botones, chips y anillos -->
+  <link rel="stylesheet" href="css/styles.css?v=3">
+  <link rel="stylesheet" href="css/tutorial.css?v=1">
+</head>
+<body class="tut">
+
+  <!-- ============ PORTADA ============ -->
+  <header class="tut-hero">
+    <div class="tut-hero-text">
+      <h1 class="logo tut-logo">Polli-Run</h1>
+      <p class="tut-kicker">Cómo se juega</p>
+      <p class="tut-lead">La carrera de preguntas de <strong>Sistemas y Procesos</strong>.
+        Tiren el dado, respondan bien y junten <strong>los 6 anillos</strong> antes que nadie.</p>
+      <div class="theme-chips tut-hero-chips">
+        <span class="theme-chip" style="--theme:#b83a3a">PLS</span>
+        <span class="theme-chip" style="--theme:#4a90a4">CA</span>
+        <span class="theme-chip" style="--theme:#3a8a58">CUR</span>
+        <span class="theme-chip" style="--theme:#a569bd">PDN</span>
+        <span class="theme-chip" style="--theme:#e07b39">EDI + CLOUD</span>
+        <span class="theme-chip" style="--theme:#c9a227">LAUDON</span>
+      </div>
+      <div class="tut-hero-actions">
+        <a class="btn btn-primary btn-big" href="#turno">Ver cómo es un turno</a>
+        <a class="btn btn-ghost" href="#video">Ver el video</a>
+      </div>
+    </div>
+
+    <!-- Pollito con la pila de los 6 anillos (cada uno cae con la animación del juego) -->
+    <div class="ring-stack" aria-hidden="true">
+      <div class="ring-stack-shadow"></div>
+      <div class="ring ring-new" style="--i:0;--rc:#b83a3a;animation-delay:.2s"></div>
+      <div class="ring ring-new" style="--i:1;--rc:#4a90a4;animation-delay:.45s"></div>
+      <div class="ring ring-new" style="--i:2;--rc:#3a8a58;animation-delay:.7s"></div>
+      <div class="ring ring-new" style="--i:3;--rc:#a569bd;animation-delay:.95s"></div>
+      <div class="ring ring-new" style="--i:4;--rc:#e07b39;animation-delay:1.2s"></div>
+      <div class="ring ring-new" style="--i:5;--rc:#c9a227;animation-delay:1.45s"></div>
+      <img class="ring-stack-avatar" src="assets/avatars/01_classic.png" alt="">
+    </div>
+  </header>
+
+  <!-- ============ ÍNDICE ============ -->
+  <nav class="tut-nav" aria-label="Secciones">
+    <a href="#roles">Quién hace qué</a>
+    <a href="#objetivo">Objetivo</a>
+    <a href="#tablero">Tablero</a>
+    <a href="#turno">Un turno</a>
+    <a href="#dificultad">Fácil o difícil</a>
+    <a href="#robo">Robo</a>
+    <a href="#corral">Corral</a>
+    <a href="#comodines">Comodines</a>
+    <a href="#ganar">Cómo se gana</a>
+    <a href="#resumen">Resumen</a>
+    <a href="#gm" class="nav-gm">Game masters</a>
+  </nav>
+
+  <main class="tut-main">
+
+    <!-- ============ VIDEO ============ -->
+    <section id="video" class="tut-section">
+      <div class="tut-card">
+        <h2 class="tut-h2"><span class="step-num">▶</span>Mirá el video</h2>
+        <!-- Para agregar el video: guardarlo como assets/tutorial/como-se-juega.mp4
+             (o cambiar el src de abajo). Mientras no exista, se ve el cartel "Próximamente". -->
+        <div class="video-frame">
+          <video id="tut-video" controls preload="metadata" poster="assets/tutorial/02-tablero.jpg">
+            <source src="assets/tutorial/como-se-juega.mp4" type="video/mp4">
+          </video>
+          <div id="video-soon" class="video-soon" hidden>
+            <div class="scene-sign video-sign">
+              <strong>Próximamente</strong>
+              <span>Acá va a estar el video de cómo se juega</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 1. ROLES ============ -->
+    <section id="roles" class="tut-section">
+      <div class="tut-card">
+        <h2 class="tut-h2"><span class="step-num">1</span>¿Quién hace qué?</h2>
+        <p class="tut-p">Se juega con la compu proyectada y un <strong>dado físico</strong> de verdad.
+          Los equipos juegan; los profes manejan la pantalla.</p>
+        <div class="roles">
+          <div class="role role-students">
+            <div class="role-head">
+              <div class="dice-face" data-n="5" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+              <h3>Los alumnos</h3>
+            </div>
+            <ul>
+              <li>Tiran el <strong>dado físico</strong>.</li>
+              <li>Eligen pregunta <strong>Fácil</strong> o <strong>Difícil</strong>.</li>
+              <li>Responden diciendo la letra: <b class="letter">A</b> <b class="letter">B</b> <b class="letter">C</b> <b class="letter">D</b></li>
+              <li>Piden <strong>comodines</strong> si les sirven.</li>
+            </ul>
+          </div>
+          <div class="role role-gm">
+            <div class="role-head">
+              <div class="mini-panel" aria-hidden="true"><span class="dice-btn selected">4</span><span class="btn btn-primary">¡Mover!</span></div>
+              <h3>Los game masters</h3>
+            </div>
+            <ul>
+              <li>Manejan el <strong>panel de control</strong>.</li>
+              <li>Cargan el número del dado y mueven la ficha.</li>
+              <li>Tocan la opción que eligió el equipo.</li>
+              <li>Activan comodines, dan anillos y deshacen errores.</li>
+            </ul>
+          </div>
+        </div>
+        <p class="tut-note">Los alumnos <strong>nunca tocan la computadora</strong>: todo lo de la pantalla lo hace el game master.</p>
+      </div>
+    </section>
+
+    <!-- ============ 2. OBJETIVO ============ -->
+    <section id="objetivo" class="tut-section">
+      <div class="tut-card tut-split">
+        <div>
+          <h2 class="tut-h2"><span class="step-num">2</span>El objetivo: juntar los 6 anillos</h2>
+          <p class="tut-p">Hay <strong>un anillo por temática</strong>, cada uno de su color.
+            Los anillos se apilan debajo de la ficha del equipo: cuanto más alta la pila, mejor.</p>
+          <div class="ring-grid">
+            <div class="ring-item"><span class="mini-ring" style="--rc:#b83a3a"></span>PLS</div>
+            <div class="ring-item"><span class="mini-ring" style="--rc:#4a90a4"></span>CA</div>
+            <div class="ring-item"><span class="mini-ring" style="--rc:#3a8a58"></span>CUR</div>
+            <div class="ring-item"><span class="mini-ring" style="--rc:#a569bd"></span>PDN</div>
+            <div class="ring-item"><span class="mini-ring" style="--rc:#e07b39"></span>EDI + CLOUD</div>
+            <div class="ring-item"><span class="mini-ring" style="--rc:#c9a227"></span>LAUDON</div>
+          </div>
+          <p class="tut-big">Gana el equipo con <strong>más anillos</strong> al final.</p>
+        </div>
+        <figure class="shot"><img src="assets/tutorial/11b-tablero-en-juego.jpg" alt="Fichas con anillos apilados en el tablero"><figcaption>Las fichas llevan sus anillos apilados abajo</figcaption></figure>
+      </div>
+    </section>
+
+    <!-- ============ 3. TABLERO ============ -->
+    <section id="tablero" class="tut-section">
+      <div class="tut-card">
+        <h2 class="tut-h2"><span class="step-num">3</span>El tablero</h2>
+        <p class="tut-p">Una <strong>viborita en zigzag de 40 casillas</strong> que vuelve a la Salida:
+          las fichas <strong>dan vueltas</strong>, no hay casilla final.</p>
+        <div class="cell-legend">
+          <div class="legend-item">
+            <div class="mini-cell mini-cell-theme" style="--theme:#3a8a58"><span class="mini-cell-ring"></span><span>CUR</span></div>
+            <div><h3>Casilla de temática</h3><p>Sale una pregunta de esa temática.</p></div>
+          </div>
+          <div class="legend-item">
+            <div class="mini-cell mini-cell-start"><span>Salida</span></div>
+            <div><h3>Salida</h3><p>Si caen justo ahí, <strong>eligen la temática</strong>. Al pasar o caer, <strong>se recargan los comodines</strong>.</p></div>
+          </div>
+          <div class="legend-item">
+            <div class="mini-cell mini-cell-jail"><span>Corral</span></div>
+            <div><h3>Corral</h3><p>Hay 3. Quien cae ahí <strong>pierde el próximo turno</strong>.</p></div>
+          </div>
+        </div>
+        <figure class="shot shot-wide"><img src="assets/tutorial/02-tablero.jpg" alt="Tablero completo con el panel de control"><figcaption>Las temáticas con más preguntas tienen más casillas. El reparto cambia en cada partida.</figcaption></figure>
+      </div>
+    </section>
+
+    <!-- ============ 4. TURNO ============ -->
+    <section id="turno" class="tut-section">
+      <div class="tut-card">
+        <h2 class="tut-h2"><span class="step-num">4</span>Cómo es un turno</h2>
+        <ol class="steps">
+          <li class="step">
+            <div class="step-art"><div class="dice-face" data-n="3" aria-hidden="true"><i></i><i></i><i></i></div></div>
+            <h3>Tiran el dado</h3>
+            <p>El equipo tira el <strong>dado físico</strong> y dice el número.</p>
+          </li>
+          <li class="step">
+            <div class="step-art"><div class="mini-panel" aria-hidden="true"><span class="dice-btn selected">3</span><span class="btn btn-primary">¡Mover!</span></div></div>
+            <h3>El profe mueve</h3>
+            <p>Toca el número en el panel y aprieta <strong>¡Mover!</strong></p>
+          </li>
+          <li class="step">
+            <div class="step-art"><div class="mini-cell mini-cell-theme" style="--theme:#c9a227"><span class="mini-cell-ring"></span><span>LAUDON</span></div></div>
+            <h3>Caen en una casilla</h3>
+            <p>La ficha avanza saltito a saltito.</p>
+          </li>
+          <li class="step">
+            <div class="step-art step-art-col"><span class="btn btn-primary mini-btn">Fácil</span><span class="btn btn-danger mini-btn">Difícil</span></div>
+            <h3>Eligen dificultad</h3>
+            <p><strong>Fácil</strong> o <strong>Difícil</strong>, ustedes deciden.</p>
+          </li>
+          <li class="step">
+            <div class="step-art"><span class="joker-badge">Eliminar</span><span class="joker-badge">Cambiar</span></div>
+            <h3>Leen la pregunta</h3>
+            <p>Si quieren, piden un <strong>comodín</strong> antes de responder.</p>
+          </li>
+          <li class="step">
+            <div class="step-art step-art-col"><span class="mini-opt right"><b>B</b>Correcta</span><span class="mini-opt wrong"><b>C</b>Incorrecta</span></div>
+            <h3>Responden</h3>
+            <p>Dicen la letra; el profe la toca: <strong class="txt-ok">verde</strong> o <strong class="txt-bad">rojo</strong>.</p>
+          </li>
+        </ol>
+        <div class="shots-2">
+          <figure class="shot"><img src="assets/tutorial/04-dificultad.jpg" alt="Ventana para elegir fácil o difícil"><figcaption>Elegir Fácil o Difícil</figcaption></figure>
+          <figure class="shot"><img src="assets/tutorial/05-pregunta.jpg" alt="Pregunta con cuatro opciones"><figcaption>La pregunta, con sus opciones A–D</figcaption></figure>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 5. FÁCIL O DIFÍCIL ============ -->
+    <section id="dificultad" class="tut-section">
+      <div class="tut-card">
+        <h2 class="tut-h2"><span class="step-num">5</span>¿Fácil o difícil?</h2>
+        <div class="versus">
+          <div class="vs-card vs-easy">
+            <h3>Fácil</h3>
+            <p class="vs-main">Bien = <strong>1 puntito</strong></p>
+            <div class="pips-demo" style="--theme:#3a8a58">
+              <span class="pips"><i class="on"></i><i class="on"></i><i class="on"></i></span>
+              <span>3 puntitos de la misma temática = <strong>anillo</strong></span>
+            </div>
+            <p class="vs-extra">Y <strong>siguen tirando</strong>.</p>
+          </div>
+          <div class="vs-or">o</div>
+          <div class="vs-card vs-hard">
+            <h3>Difícil</h3>
+            <p class="vs-main">Bien = <strong>anillo directo</strong></p>
+            <div class="pips-demo"><span class="mini-ring" style="--rc:#3a8a58"></span><span>Se lo llevan al toque</span></div>
+            <p class="vs-extra">Y <strong>termina su turno</strong>.</p>
+          </div>
+        </div>
+        <div class="callouts">
+          <div class="callout callout-bad"><strong>Si responden mal</strong> pasa el turno. Los puntitos que ya tenían <strong>no se pierden</strong>.</div>
+          <div class="callout"><strong>Si ya tienen ese anillo</strong>, acertar no les da otro: les sirve para <strong>seguir tirando</strong> (y con una difícil, para intentar un <a href="#robo">robo</a>).</div>
+        </div>
+        <div class="shots-3">
+          <figure class="shot"><img src="assets/tutorial/07-respuesta-correcta.jpg" alt="Opción correcta marcada en verde"><figcaption>Correcta: se pinta de verde</figcaption></figure>
+          <figure class="shot"><img src="assets/tutorial/09-respuesta-incorrecta.jpg" alt="Verdadero/Falso respondido mal: la elegida en rojo y la correcta en verde"><figcaption>Incorrecta: la elegida en rojo, la buena en verde</figcaption></figure>
+          <figure class="shot"><img src="assets/tutorial/08-anillo.jpg" alt="Escena de anillo ganado"><figcaption>¡Anillo ganado!</figcaption></figure>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 6. SEGUIR TIRANDO ============ -->
+    <section id="seguir" class="tut-section">
+      <div class="tut-card">
+        <h2 class="tut-h2"><span class="step-num">6</span>Si aciertan, siguen tirando</h2>
+        <div class="flow">
+          <div class="flow-item flow-ok"><span class="flow-tag">Bien, sin anillo</span><strong>Vuelven a tirar</strong><small>El panel dice “Sigue tirando”</small></div>
+          <div class="flow-item flow-ring"><span class="flow-tag">Ganan o roban un anillo</span><strong>Festejo y fin del turno</strong><small>Pasa al siguiente equipo</small></div>
+          <div class="flow-item flow-bad"><span class="flow-tag">Mal</span><strong>Pasa el turno</strong><small>Le toca al siguiente equipo</small></div>
+        </div>
+        <p class="tut-big">Fácil = <strong>puntito + otra tirada</strong>. Difícil = <strong>anillo, pero se corta el turno</strong>. Ahí está la estrategia.</p>
+      </div>
+    </section>
+
+    <!-- ============ 7. ROBO ============ -->
+    <section id="robo" class="tut-section">
+      <div class="tut-card">
+        <h2 class="tut-h2"><span class="step-num">7</span>Robo de anillos</h2>
+        <div class="formula">
+          <span class="formula-part">Caen en la <strong>misma casilla</strong> que otro equipo</span>
+          <span class="formula-op">+</span>
+          <span class="formula-part">Aciertan una <strong>difícil</strong></span>
+          <span class="formula-op">=</span>
+          <span class="formula-part formula-result">¡Pueden <strong>robar un anillo</strong>!</span>
+        </div>
+        <ul class="tut-list">
+          <li>Eligen <strong>cualquiera de sus anillos que ustedes no tengan</strong> (no tiene que ser de la temática de la casilla).</li>
+          <li>El otro equipo <strong>se queda sin ese anillo</strong>.</li>
+          <li>Pueden decidir <strong>no robar</strong>.</li>
+          <li>En la misma jugada pueden ganar el anillo de la casilla <strong>y además</strong> robar otro.</li>
+          <li>Robar <strong>termina el turno</strong>.</li>
+        </ul>
+        <div class="shots-3">
+          <figure class="shot"><img src="assets/tutorial/13-robo-aviso.jpg" alt="Aviso de robo posible al elegir dificultad"><figcaption>La pantalla avisa si hay robo posible</figcaption></figure>
+          <figure class="shot"><img src="assets/tutorial/14-robo-elegir.jpg" alt="Ventana para elegir qué anillo robar"><figcaption>Eligen qué anillo robar</figcaption></figure>
+          <figure class="shot"><img src="assets/tutorial/15-robo-anillo.jpg" alt="Escena de anillo robado"><figcaption>¡Robado!</figcaption></figure>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 8. CORRAL ============ -->
+    <section id="corral" class="tut-section">
+      <div class="tut-card tut-split">
+        <div>
+          <h2 class="tut-h2"><span class="step-num">8</span>El corral</h2>
+          <div class="mini-cell mini-cell-jail mini-cell-big"><span>Corral</span></div>
+          <ul class="tut-list">
+            <li>Si caen en el <strong>Corral</strong> no hay pregunta.</li>
+            <li><strong>Pierden el próximo turno.</strong></li>
+            <li>Su ficha se ve <strong>gris</strong> y en la lista dice <span class="jail-tag">En el corral</span></li>
+            <li>Cuando les toca, el juego salta solo al equipo siguiente.</li>
+          </ul>
+        </div>
+        <figure class="shot"><img src="assets/tutorial/10-corral.jpg" alt="Escena del corral: caen las rejas sobre el pollito"><figcaption>¡Al corral!</figcaption></figure>
+      </div>
+    </section>
+
+    <!-- ============ 9. COMODINES ============ -->
+    <section id="comodines" class="tut-section">
+      <div class="tut-card">
+        <h2 class="tut-h2"><span class="step-num">9</span>Comodines</h2>
+        <p class="tut-p">Cada equipo arranca con <strong>2 comodines</strong>, uno de cada tipo.
+          Se piden <strong>dentro de la pregunta, antes de responder</strong>.</p>
+        <div class="jokers">
+          <div class="joker-card">
+            <span class="btn btn-ghost joker-btn">Eliminar opciones (1)</span>
+            <p>Tacha opciones incorrectas: quedan solo <strong>2</strong> (la correcta y una incorrecta).</p>
+            <p class="joker-no">No se puede en <strong>Verdadero/Falso</strong> ni en preguntas sin opciones.</p>
+          </div>
+          <div class="joker-card">
+            <span class="btn btn-ghost joker-btn">Cambiar pregunta (1)</span>
+            <p>Sale <strong>otra pregunta</strong> de la misma temática y dificultad.</p>
+            <p class="joker-no">No se puede si no queda otra pregunta disponible.</p>
+          </div>
+        </div>
+        <div class="callouts">
+          <div class="callout">Se pueden usar <strong>los dos en la misma pregunta</strong>.</div>
+          <div class="callout callout-gold"><strong>Se recargan al pasar o caer en la Salida</strong>, pero no se acumulan: vuelven a ser 1 y 1.</div>
+          <div class="callout">En la lista de equipos se ven los que quedan:
+            <span class="joker-badge">Eliminar</span><span class="joker-badge used">Cambiar</span> (tachado = usado).</div>
+        </div>
+        <div class="shots-2">
+          <figure class="shot"><img src="assets/tutorial/06-comodin-eliminar.jpg" alt="Pregunta con dos opciones tachadas por el comodín"><figcaption>Eliminar opciones: quedan 2</figcaption></figure>
+          <figure class="shot"><img src="assets/tutorial/12-salida.jpg" alt="Ventana de la Salida para elegir temática"><figcaption>Caer justo en la Salida: eligen la temática</figcaption></figure>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 10. PREGUNTAS ============ -->
+    <section id="preguntas" class="tut-section">
+      <div class="tut-card">
+        <h2 class="tut-h2"><span class="step-num">10</span>Las preguntas</h2>
+        <ul class="tut-list">
+          <li>Las <strong>acertadas no vuelven a salir</strong>.</li>
+          <li>Las <strong>falladas</strong> o las <strong>cambiadas con el comodín</strong> pueden volver cuando se agoten las nuevas de esa temática.</li>
+          <li>Si ya se acertaron <strong>todas</strong> las fáciles (o las difíciles) de una temática, esa dificultad se desactiva: eligen la otra o pierden el turno.</li>
+          <li>Algunas preguntas tienen <strong>imagen</strong> (por ejemplo, cursogramas en CUR).</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ============ 11. GANAR ============ -->
+    <section id="ganar" class="tut-section">
+      <div class="tut-card">
+        <h2 class="tut-h2"><span class="step-num">11</span>¿Cómo se gana?</h2>
+        <ul class="tut-list">
+          <li>Cuando un equipo <strong>junta los 6 anillos</strong> se festeja, pero <strong>el juego sigue</strong>: todavía se los pueden robar.</li>
+          <li>El profe aprieta <strong>Finalizar juego</strong> y aparece el <strong>podio</strong>.</li>
+        </ul>
+        <div class="tiebreak">
+          <div class="tb-step tb-1"><span>1</span><strong>Más anillos</strong></div>
+          <div class="tb-arrow">si empatan</div>
+          <div class="tb-step tb-2"><span>2</span><strong>Completó los 6 antes</strong></div>
+          <div class="tb-arrow">si siguen empatados</div>
+          <div class="tb-step tb-3"><span>3</span><strong>Más fáciles acertadas</strong></div>
+        </div>
+        <div class="shots-2">
+          <figure class="shot"><img src="assets/tutorial/16-victoria.jpg" alt="Festejo al juntar todos los anillos"><figcaption>¡Todos los anillos!</figcaption></figure>
+          <figure class="shot"><img src="assets/tutorial/17-podio.jpg" alt="Podio final"><figcaption>El podio</figcaption></figure>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ RESUMEN ============ -->
+    <section id="resumen" class="tut-section">
+      <div class="tut-card cheat">
+        <h2 class="tut-h2 cheat-title">Resumen rápido</h2>
+        <div class="cheat-grid">
+          <div class="cheat-item"><div class="dice-face" data-n="6" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div><p>Dado físico → el profe mueve</p></div>
+          <div class="cheat-item"><span class="btn btn-danger mini-btn">Difícil</span><p>Bien = <strong>anillo</strong><br><small>termina el turno</small></p></div>
+          <div class="cheat-item"><span class="btn btn-primary mini-btn">Fácil</span><p>Bien = <strong>puntito</strong><br><small>3 puntitos = anillo</small></p></div>
+          <div class="cheat-item"><span class="cheat-icon cheat-ok">✓</span><p>Bien sin anillo = <strong>siguen tirando</strong></p></div>
+          <div class="cheat-item"><span class="cheat-icon cheat-bad">✗</span><p>Mal = <strong>pasa el turno</strong></p></div>
+          <div class="cheat-item"><span class="cheat-icon cheat-steal">⇄</span><p>Misma casilla + difícil bien = <strong>robo</strong></p></div>
+          <div class="cheat-item"><div class="mini-cell mini-cell-jail"><span>Corral</span></div><p><strong>Pierden</strong> el próximo turno</p></div>
+          <div class="cheat-item"><div class="cheat-jokers"><span class="joker-badge">Eliminar</span><span class="joker-badge">Cambiar</span></div><p>Comodines: <strong>se recargan en la Salida</strong></p></div>
+        </div>
+        <p class="cheat-goal">Gana quien tenga <strong>más anillos</strong> cuando el profe termina el juego.</p>
+      </div>
+    </section>
+
+    <!-- ============ GAME MASTERS ============ -->
+    <section id="gm" class="tut-section tut-gm">
+      <div class="gm-banner">
+        <h2 class="logo tut-gm-title">Zona game master</h2>
+        <p>Para los profes que manejan el panel de control.</p>
+      </div>
+
+      <div class="tut-card">
+        <h2 class="tut-h2"><span class="step-num gm-num">A</span>Preparar la partida</h2>
+        <div class="tut-split">
+          <ol class="tut-list tut-ol">
+            <li>Abrir <code>index.html</code> con doble clic (<strong>Chrome o Edge</strong>). No necesita internet.</li>
+            <li>El banco de <strong>SYP 2026</strong> ya viene cargado (6 temáticas, 517 preguntas). Para otro, <strong>Cargar CSV</strong> (ver <code>LEEME.md</code>).</li>
+            <li>Registrar los equipos: <strong>nombre, ficha y color</strong>. Mínimo 2; <strong>Agregar equipo</strong> para más.</li>
+            <li><strong>¡Empezar partida!</strong></li>
+          </ol>
+          <figure class="shot"><img src="assets/tutorial/01-registro.jpg" alt="Pantalla de registro de equipos"><figcaption>Registro de equipos</figcaption></figure>
+        </div>
+      </div>
+
+      <div class="tut-card">
+        <h2 class="tut-h2"><span class="step-num gm-num">B</span>El panel de control</h2>
+        <div class="tut-split gm-panel-split">
+          <figure class="shot shot-narrow"><img src="assets/tutorial/03-panel-dado.png" alt="Panel con los botones del dado, Mover, +1 Anillo, Pasar turno y Pregunta de esta casilla"></figure>
+          <table class="gm-table">
+            <tbody>
+              <tr><td><span class="dice-btn mini-dice">1</span>–<span class="dice-btn mini-dice">6</span></td><td>El número del dado físico (o teclas <kbd>1</kbd>–<kbd>6</kbd>).</td></tr>
+              <tr><td><span class="btn btn-primary mini-btn">¡Mover!</span></td><td>Mueve la ficha (o <kbd>Enter</kbd>).</td></tr>
+              <tr><td><span class="btn btn-gold mini-btn">+1 Anillo</span></td><td>Da un anillo a mano al equipo del turno (se elige la temática).</td></tr>
+              <tr><td><span class="btn btn-ghost mini-btn">Pasar turno</span></td><td>Salta al equipo siguiente.</td></tr>
+              <tr><td><span class="btn btn-ghost mini-btn">Pregunta de esta casilla</span></td><td>Vuelve a sacar una pregunta donde está el equipo.</td></tr>
+              <tr><td><span class="btn-icon mini-icon">+</span><span class="btn-icon mini-icon">−</span></td><td>En la lista: da un anillo / quita el último a <strong>ese</strong> equipo.</td></tr>
+              <tr><td><span class="btn btn-ghost mini-btn">Deshacer</span></td><td>Revierte la última acción (hasta 30 pasos).</td></tr>
+              <tr><td><span class="btn btn-ghost mini-btn">Finalizar juego</span></td><td>Muestra el podio. Después se puede <strong>Seguir jugando</strong>.</td></tr>
+              <tr><td><span class="btn btn-ghost mini-btn">Nueva partida</span></td><td>Borra la partida actual y vuelve al registro.</td></tr>
+              <tr><td><span class="btn btn-ghost mini-btn">Preguntas</span></td><td>Cargar otro CSV en plena partida.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="tut-split">
+          <figure class="shot shot-narrow"><img src="assets/tutorial/11-equipos.png" alt="Lista de equipos con anillos, puntitos, comodines y corral"></figure>
+          <div>
+            <h3 class="tut-h3">La lista de equipos</h3>
+            <ul class="tut-list">
+              <li>Anillos ganados <strong>a color</strong>; los que faltan, <strong>apagados</strong>.</li>
+              <li><span class="pips" style="--theme:#4a90a4"><i class="on"></i><i class="on"></i><i></i></span> = puntitos de fáciles (2 de 3).</li>
+              <li><span class="joker-badge">Eliminar</span><span class="joker-badge used">Cambiar</span> = comodines que quedan.</li>
+              <li><span class="jail-tag">En el corral</span> = pierde el próximo turno.</li>
+              <li>Arriba, la tarjeta de color muestra <strong>de quién es el turno</strong> (o “Sigue tirando”).</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="tut-card">
+        <h2 class="tut-h2"><span class="step-num gm-num">C</span>Al responder</h2>
+        <div class="callouts">
+          <div class="callout"><strong>Con opciones:</strong> tocá la opción que <strong>dijo el equipo</strong>. El juego marca solo si es correcta y se cierra.</div>
+          <div class="callout"><strong>Sin opciones (abiertas):</strong> aparecen <span class="btn btn-primary mini-btn">Correcto</span> <span class="btn btn-danger mini-btn">Incorrecto</span> y decidís vos.</div>
+          <div class="callout callout-gold"><strong>Comodines:</strong> si el equipo pide uno, tocalo <strong>antes</strong> de marcar la respuesta.</div>
+        </div>
+      </div>
+
+      <div class="tut-card">
+        <h2 class="tut-h2"><span class="step-num gm-num">D</span>Situaciones especiales</h2>
+        <div class="faq">
+          <div class="faq-item"><h3>Toqué mal un número o una opción</h3><p>Usá <strong>Deshacer</strong>.</p></div>
+          <div class="faq-item"><h3>En la Salida toqué “Cancelar”</h3><p>El equipo <strong>pierde el turno</strong>. Si fue sin querer, <strong>Deshacer</strong>.</p></div>
+          <div class="faq-item"><h3>Usé “Pregunta de esta casilla” y fallaron</h3><p>Con ese botón el turno <strong>no pasa solo</strong>: tocá <strong>Pasar turno</strong>.</p></div>
+          <div class="faq-item"><h3>Se cerró la pestaña o se cortó la luz</h3><p>Se guarda todo solo. Al abrir de nuevo aparece <strong>Continuar partida guardada</strong>.</p></div>
+          <div class="faq-item"><h3>La escena del anillo o del corral tapa la pantalla</h3><p>Se cierra sola en unos segundos, o con un clic.</p></div>
+        </div>
+      </div>
+
+      <div class="tut-card">
+        <h2 class="tut-h2"><span class="step-num gm-num">E</span>Sugerencias para la dinámica</h2>
+        <p class="tut-p">Esto no lo controla el juego; queda a criterio de ustedes.</p>
+        <ul class="tut-list">
+          <li>Que cada equipo tenga <strong>un vocero</strong> que diga la respuesta final.</li>
+          <li>Marcar la opción recién cuando el equipo <strong>confirma</strong> (“¿última respuesta?”).</li>
+          <li>Poner un <strong>tiempo</strong> para responder (por ejemplo, 30 s las fáciles y 60 s las difíciles).</li>
+          <li>Avisar en voz alta cuando hay <strong>robo posible</strong> o alguien cae en el <strong>corral</strong>.</li>
+        </ul>
+      </div>
+    </section>
+
+    <footer class="tut-footer">
+      <a class="btn btn-primary btn-big" href="index.html">Ir al juego</a>
+      <a class="btn btn-ghost" href="#">Volver arriba</a>
+    </footer>
+  </main>
+
+  <!-- Visor de capturas: clic en una imagen para verla grande -->
+  <div id="lightbox" class="modal lightbox" hidden>
+    <img id="lightbox-img" alt="">
+  </div>
+
+  <script>
+    // Video: si todavía no existe el archivo, se muestra el cartel "Próximamente"
+    (() => {
+      const video = document.getElementById('tut-video');
+      const soon = document.getElementById('video-soon');
+      const showSoon = () => { video.hidden = true; soon.hidden = false; };
+      video.querySelector('source').addEventListener('error', showSoon);
+      video.addEventListener('error', showSoon);
+      // por si el archivo ya falló antes de que corriera este script
+      if (video.networkState === HTMLMediaElement.NETWORK_NO_SOURCE) showSoon();
+    })();
+
+    // Visor de capturas
+    (() => {
+      const box = document.getElementById('lightbox');
+      const img = document.getElementById('lightbox-img');
+      document.querySelectorAll('.shot img').forEach(el => el.addEventListener('click', () => {
+        img.src = el.src; img.alt = el.alt; box.hidden = false;
+      }));
+      box.addEventListener('click', () => { box.hidden = true; });
+      document.addEventListener('keydown', e => { if (e.key === 'Escape') box.hidden = true; });
+    })();
+
+    // Índice: marca la sección que se está viendo
+    (() => {
+      const links = [...document.querySelectorAll('.tut-nav a')];
+      const byId = new Map(links.map(a => [a.getAttribute('href').slice(1), a]));
+      const io = new IntersectionObserver(entries => entries.forEach(e => {
+        if (!e.isIntersecting) return;
+        const a = byId.get(e.target.id);
+        if (a) { links.forEach(l => l.classList.remove('active')); a.classList.add('active'); }
+      }), { rootMargin: '-40% 0px -55% 0px' });
+      document.querySelectorAll('.tut-section[id]').forEach(s => io.observe(s));
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,1 @@
+Poné acá las imágenes de las preguntas, con el nombre de la columna id_imagen del CSV. Ver LEEME.md

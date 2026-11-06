@@ -1,4 +1,7 @@
-# Carrera de Mentes — guía rápida
+# Polli-Run — guía rápida
+
+> **Tutorial de cómo se juega** (reglas, comodines, anillos, panel del game master):
+> `tutorial.html` (versión visual) y `tutorial.md`.
 
 ## Cómo abrirlo
 Doble clic en `index.html` (Chrome o Edge). No necesita internet ni servidor
@@ -12,21 +15,27 @@ Doble clic en `index.html` (Chrome o Edge). No necesita internet ni servidor
   - **Difícil correcta** → ganan el **anillo de esa temática**.
   - **Fácil correcta** → suman 1 de 3 (puntitos en la lista de equipos);
     con **3 fáciles de la misma temática** ganan el anillo.
-  - **Siempre que responden bien siguen tirando** (en el panel aparece "Sigue tirando").
-    Si responden mal, pasa el turno.
-  - Las preguntas acertadas **no vuelven a salir**; las falladas sí.
-- **Robo de anillos:** si caen en la misma casilla que otro equipo y responden bien,
+  - **Si responden bien siguen tirando** (en el panel aparece "Sigue tirando"), salvo que
+    ganen o roben un anillo: ahí termina su turno. Si responden mal, también pasa el turno.
+  - Las preguntas acertadas **no vuelven a salir**.
+- **Robo de anillos:** si caen en la misma casilla que otro equipo y responden bien una **difícil**,
   pueden robarle el anillo que quieran (de los que no tienen). El otro se queda sin él.
 - **Corral (cárcel):** quien cae ahí no responde y **pierde el próximo turno**
   (su ficha se ve gris y en la lista dice "En el corral").
-- **Comodines:** cada equipo arranca con 2, que se usan dentro de la pregunta:
+- **Comodines:** cada equipo arranca con 2, que se usan dentro de la pregunta. Al pasar o caer
+  en la **Salida** se reinician (vuelven a la cantidad inicial, no se acumulan):
   - **Eliminar opciones**: tacha opciones incorrectas y quedan 2 (no se puede en
     Verdadero/Falso ni en preguntas sin opciones).
   - **Cambiar pregunta**: sale otra de la misma temática y dificultad.
-- **Gana el primer equipo que junta un anillo de cada temática.** Con "Seguir jugando"
-  los demás siguen compitiendo por el 2.º puesto, etc.
+- **El juego no termina solo:** al juntar un anillo de cada temática se festeja y se sigue
+  jugando (esos anillos todavía se pueden robar). El botón **Finalizar juego** muestra el
+  podio de ese momento: gana quien tiene más anillos; si empatan, quien los completó
+  antes y después quien tiene más fáciles acertadas.
 - La **Salida**: si caen justo ahí, eligen de qué temática es la pregunta.
-- Si se agotan las preguntas de una temática, se vuelven a habilitar todas.
+- Si se agotan las preguntas de una temática, se repiten las **falladas o salteadas con el comodín**.
+- Si se **acertaron todas** las fáciles o las difíciles de una temática, esa dificultad queda
+  desactivada: un cartel avisa que elijan la otra o pierdan el turno. Si no queda ninguna de las
+  dos, pierden el turno (y en la Salida esa temática no se puede elegir).
 
 ## Estructura
 
@@ -51,11 +60,12 @@ Queda guardado en el navegador: no hay que cargarlo cada clase.
 
 **Formato** (Excel o Google Sheets → "Guardar como CSV"):
 
-| tematica | pregunta | respuesta | opciones | opcion_correcta | dificultad |
-|---|---|---|---|---|---|
-| Historia | ¿En qué año llegó Colón a América? | 1492 | 1492\|1810\|1516\|1776 | A | facil |
-| Ciencia | ¿Cuántos huesos tiene el cuerpo humano? | 206 | | | dificil |
-| Ciencia | El Sol es una estrella. | Verdadero | Verdadero\|Falso | A | facil |
+| tematica | pregunta | respuesta | opciones | opcion_correcta | dificultad | id_imagen |
+|---|---|---|---|---|---|---|
+| Historia | ¿En qué año llegó Colón a América? | 1492 | 1492\|1810\|1516\|1776 | A | facil | |
+| Ciencia | ¿Cuántos huesos tiene el cuerpo humano? | 206 | | | dificil | |
+| Ciencia | El Sol es una estrella. | Verdadero | Verdadero\|Falso | A | facil | |
+| Geografía | ¿De qué país es esta bandera? | Italia | Italia\|Irlanda\|México | A | facil | bandera-1 |
 
 - `opcion_correcta`: cuál de las opciones es la buena. Puede ser la letra (`B`),
   el número (`2` = la segunda) o el texto de la opción. El comodín
@@ -63,6 +73,9 @@ Queda guardado en el navegador: no hay que cargarlo cada clase.
   el comodín queda desactivado para esa pregunta.
 - `dificultad`: `facil` o `dificil`. Si está vacía, la pregunta sirve para las dos.
 - **Verdadero/Falso**: poné `Verdadero|Falso` como opciones.
+- `id_imagen` (opcional): para las preguntas con imagen. Poné el archivo en `assets/imagenes/`
+  con ese nombre (`bandera-1.jpg`). La extensión no hace falta si es jpg, jpeg, png, webp o gif.
+  Si falta el archivo, la pregunta sale con un aviso en rojo.
 
 - **Las temáticas del tablero = las que aparecen en la columna `tematica`**, en el orden
   en que aparecen por primera vez. Se usan hasta `MAX_THEMES` (6 por defecto).
@@ -74,6 +87,9 @@ Queda guardado en el navegador: no hay que cargarlo cada clase.
   se muestran como A/B/C/D; la respuesta no se muestra. El moderador decide con
   **Correcto** / **Incorrecto**.
 - **Descargar plantilla** baja un CSV listo para completar.
+- El juego viene **precargado** con las preguntas de `preguntas/preguntas-SYP2026-aprobadas (1).csv`
+  (copiadas en `js/preguntas-syp2026.js`). Se usan si el navegador no tiene otro banco guardado;
+  cargar otro CSV las reemplaza. Si se modifica ese CSV, hay que regenerar el `.js`.
 
 ## Configuración (`js/config.js`)
 
@@ -82,7 +98,7 @@ Queda guardado en el navegador: no hay que cargarlo cada clase.
 | `COLUMNS`, `LANES` | Tamaño de la viborita: LANES filas (par) de COLUMNS casillas. **9×4 = 40** (por defecto), 8×4 = 36, 10×4 = 44, 7×6 = 48. |
 | `JAIL_CELLS`, `JAIL_TURNS` | Cuántas casillas de corral hay y cuántos turnos se pierden. |
 | `JAIL_IMAGE` | Foto del corral (`assets/tablero/corral.jpg`). Si no está, se ve un corral dibujado. |
-| `CORRECT_KEEPS_TURN` | `true`: si responden bien siguen tirando. |
+| `CORRECT_KEEPS_TURN` | `true`: si responden bien siguen tirando (salvo que ganen o roben un anillo). |
 | `EASY_FOR_RING` | Cuántas fáciles de una temática hacen falta para el anillo (3). |
 | `JOKERS` | Comodines iniciales de cada equipo: `{ eliminar: 1, cambiar: 1 }`. |
 | `MAX_THEMES` / `MIN_THEMES` | Cuántas temáticas del CSV se usan como máximo / mínimo. |
@@ -91,8 +107,10 @@ Queda guardado en el navegador: no hay que cargarlo cada clase.
 | `BOARD_AREA` | Zona del fondo donde va la pista (% de la imagen). Ajustar si cambiás el fondo. |
 | `STEP_MS` | Velocidad del saltito por casilla. |
 
-Las temáticas se reparten en las casillas **mezcladas por bloques**: hay de todas
-a lo largo de la vuelta y nunca dos iguales seguidas. El reparto cambia en cada partida
+Cada temática tiene casillas **en proporción a sus preguntas** en el CSV (el doble de
+preguntas, el doble de casillas; como mínimo 1). Se reparten mezcladas a lo largo de la
+vuelta. Dos iguales seguidas solo aparecen si es inevitable (una temática con cerca de la
+mitad de las casillas o más), y las menos posibles. El reparto cambia en cada partida
 nueva y se mantiene si se recarga.
 
 ## Lo visual que hacés vos
