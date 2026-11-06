@@ -521,6 +521,10 @@
 
   // Casillas de corral, repartidas a lo largo de la vuelta
   function jailIndexes() {
+    // Posiciones fijas (JAIL_POSITIONS) si están; si no, JAIL_CELLS repartidas parejo
+    if (Array.isArray(C.JAIL_POSITIONS) && C.JAIL_POSITIONS.length) {
+      return [...new Set(C.JAIL_POSITIONS.map(i => i | 0).filter(i => i > 0 && i < TOTAL))].sort((a, b) => a - b);
+    }
     const n = Math.max(0, C.JAIL_CELLS | 0), out = [];
     for (let k = 1; k <= n; k++) out.push(Math.round(TOTAL * k / (n + 1)));
     return out;

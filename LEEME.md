@@ -94,6 +94,7 @@ Queda guardado en el navegador: no hay que cargarlo cada clase.
 |---|---|
 | `COLUMNS`, `LANES` | Tamaño de la viborita: LANES filas (par) de COLUMNS casillas. **9×4 = 40** (por defecto), 8×4 = 36, 10×4 = 44, 7×6 = 48. |
 | `JAIL_CELLS`, `JAIL_TURNS` | Cuántas casillas de corral hay y cuántos turnos se pierden. |
+| `JAIL_POSITIONS` | Casillas exactas de los corrales (ahora 10, 26 y 37; la Salida es la 0). Con `null` se reparten solos. |
 | `JAIL_IMAGE` | Foto del corral (`assets/tablero/corral.jpg`). Si no está, se ve un corral dibujado. |
 | `CORRECT_KEEPS_TURN` | `true`: si responden bien siguen tirando (salvo que ganen o roben un anillo). |
 | `EASY_FOR_RING` | Cuántas fáciles de una temática hacen falta para el anillo (3). |

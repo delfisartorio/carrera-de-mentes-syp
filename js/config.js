@@ -24,6 +24,9 @@ const CONFIG = {
   // Casillas de corral repartidas por la pista. Quien cae ahí no responde
   // nada y pierde JAIL_TURNS turno(s).
   JAIL_CELLS: 3,
+  // Casillas exactas de los corrales (0 = Salida, la vuelta tiene 40: de 0 a 39).
+  // Si está, manda sobre JAIL_CELLS. Para repartirlos parejo solos: JAIL_POSITIONS: null
+  JAIL_POSITIONS: [10, 26, 37],
   JAIL_TURNS: 1,
   // Foto de la casilla. Si no existe, se dibuja un corral de madera.
   JAIL_IMAGE: 'assets/tablero/corral.jpg',
